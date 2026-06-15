@@ -69,46 +69,55 @@
             gap: 8px;
         }
 
-        .dash-value {
-            font-size: 1.4rem; 
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            color: #0f172a;
-            transition: opacity 0.2s ease;
-        }
+        /* 數字外層容器：加入這些屬性來固定佈局 */
+.dash-value-wrapper {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    min-width: 140px; 
+    margin-top: 2px;
+}
 
-       /* 全新質感的隱藏遮罩層 */
-        .secure-mask {
-            position: absolute;
-            top: 2px;
-            left: 0;
-            width: 100%;
-            height: calc(100% - 4px);
-            background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
-            background-size: 200% 100%;
-            border-radius: 6px;
-            animation: shimmer 1.6s infinite linear;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-        }
+.dash-value {
+    font-size: 1.4rem; 
+    font-weight: 600;
+    letter-spacing: -0.3px;
+    color: #0f172a;
+    transition: opacity 0.2s ease;
+}
 
-        /* 啟用隱藏時的狀態 */
-        .is-hidden .dash-value {
-            opacity: 0; /* 讓真實數字完全透明，防止溢出 */
-        }
+/* 全新質感的隱藏遮罩層 */
+.secure-mask {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 100%;
+    height: calc(100% - 4px);
+    background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
+    background-size: 200% 100%;
+    border-radius: 6px;
+    animation: shimmer 1.6s infinite linear;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
 
-        .is-hidden .secure-mask {
-            opacity: 1; /* 顯現遮罩色塊 */
-            pointer-events: auto;
-        }
+/* 當加上 is-hidden 類別時的效果 */
+.is-hidden .dash-value {
+    opacity: 0; 
+}
 
-        /* 流光微動效 */
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+.is-hidden .secure-mask {
+    opacity: 1; 
+    pointer-events: auto;
+}
+
+/* 流光微動效 */
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
 
         /* Form Card */
         .form-card {
@@ -371,17 +380,23 @@
 
 <div class="container">
 
-    <div class="dashboard">
-        <div class="dash-row" onclick="toggleVisibility('totalDeposit')">
-            <div class="dash-label">Total Principal</div>
-            <div id="totalDeposit" class="dash-value blur-effect">$0.00</div>
-        </div>
-        
-        <div class="dash-row" onclick="toggleVisibility('totalInterest')">
-            <div class="dash-label"><span id="interestYearLabel">Current Year</span> Matured Interest</div>
-            <div id="totalInterest" class="dash-value">$0.00</div>
+   <div class="dashboard">
+    <div class="dash-row">
+        <div class="dash-label">Total Principal</div>
+        <div id="wrapperDeposit" class="dash-value-wrapper is-hidden" onclick="toggleVisibility('wrapperDeposit')" title="Click to show/hide">
+            <div id="totalDeposit" class="dash-value">$0.00</div>
+            <div class="secure-mask"></div>
         </div>
     </div>
+    
+    <div class="dash-row">
+        <div class="dash-label"><span id="interestYearLabel">Current Year</span> Matured Interest</div>
+        <div id="wrapperInterest" class="dash-value-wrapper" onclick="toggleVisibility('wrapperInterest')" title="Click to show/hide">
+            <div id="totalInterest" class="dash-value">$0.00</div>
+            <div class="secure-mask"></div>
+        </div>
+    </div>
+</div>
 
     <div id="formCard" class="form-card">
         <div class="form-grid">
@@ -532,9 +547,9 @@
     }
 
     // 點擊事件：切換選定 ID 的 blur-effect
-    function toggleVisibility(id) {
-        document.getElementById(id).classList.toggle('blur-effect');
-    }
+function toggleVisibility(id) {
+    document.getElementById(id).classList.toggle('is-hidden');
+}
 
     function saveToLocalStorage() {
         localStorage.setItem('my_term_deposits', JSON.stringify(deposits));
