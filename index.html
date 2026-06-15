@@ -424,8 +424,8 @@
 <script>
     let deposits = JSON.parse(localStorage.getItem('my_term_deposits'));
     let editingId = null;
-    let currentCalculatedStartDate = ""; // 核心：即時追蹤計算出的精確 Start Date
-    let userHasManuallyChangedMaturity = false; // 新增模式下是否手動蓋過到期日
+    let currentCalculatedStartDate = ""; 
+    let userHasManuallyChangedMaturity = false; 
     
     if (!deposits || deposits.length === 0) {
         deposits = [
@@ -439,7 +439,34 @@
         resetFormDates();
     };
 
-    // 核心日期雙向計算與聯動邏輯
+    // 安全的安全月份加減函數：完全避免大小月溢出及多次點擊造成的日期偏差Bug
+    function calculateShiftedDate(baseDateStr, monthsToShift, isForward = true) {
+        let parts = baseDateStr.split('-');
+        let year = parseInt(parts[0], 10);
+        let month = parseInt(parts[1], 10) - 1; // 轉為 0-11
+        let day = parseInt(parts[2], 10);
+
+        // 建立一個安全的暫時日期（先把日設為1，避免大月跳小月溢出）
+        let tempDate = new Date(year, month, 1);
+        if (isForward) {
+            tempDate.setMonth(tempDate.getMonth() + monthsToShift);
+        } else {
+            tempDate.setMonth(tempDate.getMonth() - monthsToShift);
+        }
+
+        // 檢查目標月份的最大天數，防止例如 31 日硬塞進 30 日的月份
+        let targetYear = tempDate.getFullYear();
+        let targetMonth = tempDate.getMonth();
+        let maxDaysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+        
+        let finalDay = Math.min(day, maxDaysInTargetMonth);
+        
+        // 輸出精確的 YYYY-MM-DD
+        let finalDate = new Date(targetYear, targetMonth, finalDay);
+        return finalDate.toISOString().split('T')[0];
+    }
+
+    // 日期聯動核心控制
     function onDateParameterChange(triggerType) {
         const monthsSelect = document.getElementById('months');
         const expiryInput = document.getElementById('expiryDate');
@@ -448,51 +475,36 @@
         if (editingId !== null) {
             // 【編輯模式】
             if (triggerType === 'term') {
-                // 如果改了期數，基於現有的「起息日」向後計算新到期日
                 if (currentCalculatedStartDate) {
-                    let baseStart = new Date(currentCalculatedStartDate);
-                    baseStart.setMonth(baseStart.getMonth() + selectedMonths);
-                    expiryInput.value = baseStart.toISOString().split('T')[0];
+                    expiryInput.value = calculateShiftedDate(currentCalculatedStartDate, selectedMonths, true);
                 }
             } else if (triggerType === 'maturity') {
-                // 如果改了到期日，自動倒退回正確的起息日
                 if (expiryInput.value) {
-                    let baseExp = new Date(expiryInput.value);
-                    baseExp.setMonth(baseExp.getMonth() - selectedMonths);
-                    currentCalculatedStartDate = baseExp.toISOString().split('T')[0];
+                    currentCalculatedStartDate = calculateShiftedDate(expiryInput.value, selectedMonths, false);
                 }
             }
         } else {
             // 【新增模式】
             if (triggerType === 'term') {
-                // 如果改了期數且沒手動蓋過日期，則預設起息日為今天，並往後推算到期日
                 if (!userHasManuallyChangedMaturity) {
                     const today = new Date();
                     currentCalculatedStartDate = today.toISOString().split('T')[0];
-                    today.setMonth(today.getMonth() + selectedMonths);
-                    expiryInput.value = today.toISOString().split('T')[0];
+                    expiryInput.value = calculateShiftedDate(currentCalculatedStartDate, selectedMonths, true);
                 } else {
-                    // 如果用戶之前手動改過到期日，此時再更換期數，應以此手動到期日為準「往前倒退」更新起息日
                     if (expiryInput.value) {
-                        let baseExp = new Date(expiryInput.value);
-                        baseExp.setMonth(baseExp.getMonth() - selectedMonths);
-                        currentCalculatedStartDate = baseExp.toISOString().split('T')[0];
+                        currentCalculatedStartDate = calculateShiftedDate(expiryInput.value, selectedMonths, false);
                     }
                 }
             } else if (triggerType === 'maturity') {
-                // 用戶手動更改到期日
                 userHasManuallyChangedMaturity = true;
                 if (expiryInput.value) {
-                    let baseExp = new Date(expiryInput.value);
-                    baseExp.setMonth(baseExp.getMonth() - selectedMonths);
-                    currentCalculatedStartDate = baseExp.toISOString().split('T')[0];
+                    currentCalculatedStartDate = calculateShiftedDate(expiryInput.value, selectedMonths, false);
                 }
             }
         }
         renderStatus();
     }
 
-    // 重設日期表單為預設狀態（新增模式，預設 3 個月，起息日為今天）
     function resetFormDates() {
         editingId = null;
         userHasManuallyChangedMaturity = false;
@@ -500,10 +512,10 @@
         const today = new Date();
         currentCalculatedStartDate = today.toISOString().split('T')[0];
         
-        const selectedMonths = parseInt(document.getElementById('months').value);
-        today.setMonth(today.getMonth() + selectedMonths);
-        document.getElementById('expiryDate').value = today.toISOString().split('T')[0];
+        const monthsSelect = document.getElementById('months');
+        const selectedMonths = parseInt(monthsSelect.value);
         
+        document.getElementById('expiryDate').value = calculateShiftedDate(currentCalculatedStartDate, selectedMonths, true);
         renderStatus();
     }
 
@@ -529,9 +541,7 @@
 
         deposits.forEach(item => {
             if (!item.startDate) {
-                let sObj = new Date(item.expiryDate);
-                sObj.setMonth(sObj.getMonth() - (item.months || 12));
-                item.startDate = sObj.toISOString().split('T')[0];
+                item.startDate = calculateShiftedDate(item.expiryDate, (item.months || 3), false);
             }
 
             const expiry = new Date(item.expiryDate);
@@ -612,14 +622,10 @@
         }
         errorMsg.style.display = 'none';
 
-        // 核心修正：直接使用當前雙向綁定計算好的精確起息日，絕不被「今天」粗暴覆蓋
         let finalStartDate = currentCalculatedStartDate;
 
-        // 安全防護線：如果因為某些原因沒有取到值，則動態現場倒退推算
         if (!finalStartDate) {
-            const expDateObj = new Date(expiryDate);
-            expDateObj.setMonth(expDateObj.getMonth() - parseInt(months));
-            finalStartDate = expDateObj.toISOString().split('T')[0];
+            finalStartDate = calculateShiftedDate(expiryDate, parseInt(months), false);
         }
 
         if (editingId !== null) {
@@ -662,7 +668,7 @@
         if (!item) return;
 
         editingId = id;
-        currentCalculatedStartDate = item.startDate; // 載入此紀錄原本的精確歷史起息日
+        currentCalculatedStartDate = item.startDate; 
 
         document.getElementById('bank').value = item.bank;
         document.getElementById('amount').value = item.amount;
