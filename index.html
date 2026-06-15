@@ -6,14 +6,14 @@
     <title>Fixed Deposit Tracker</title>
     <style>
         :root {
-            --primary-color: #4f46e5;       /* 柔和靛藍 */
-            --success-color: #0d9488;       /* 清新薄荷綠 */
-            --warning-color: #f97316;       /* 溫和暖橙 */
-            --bg-color: #f8fafc;            /* 極透白底色 */
+            --primary-color: #4f46e5;       
+            --success-color: #0d9488;       
+            --warning-color: #f97316;       
+            --bg-color: #f8fafc;            
             --card-bg: #ffffff;
-            --text-main: #334155;           /* 深灰 */
-            --text-muted: #94a3b8;          /* 淡灰 */
-            --expired-color: #cbd5e1;       /* 已到期淺灰 */
+            --text-main: #334155;           
+            --text-muted: #94a3b8;          
+            --expired-color: #cbd5e1;       
         }
 
         body {
@@ -21,12 +21,12 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 40px 20px;
+            padding: 20px 15px; /* 【緊湊】縮減網頁四周留白 */
             -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 840px;
+            max-width: 800px; /* 【緊湊】稍微縮減最大寬度 */
             margin: 0 auto;
         }
 
@@ -34,15 +34,15 @@
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 22px 28px;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(224, 231, 255, 0.5);
-            margin-bottom: 35px;
+            padding: 14px 20px; /* 【緊湊】縮減儀表板內邊距 */
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(224, 231, 255, 0.4);
+            margin-bottom: 18px; /* 【緊湊】縮減下方間距 */
             border: 1px solid rgba(255, 255, 255, 0.6);
             
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px; /* 【緊湊】縮減行距 */
         }
 
         .dash-row {
@@ -50,28 +50,27 @@
         }
 
         .dash-row:first-child {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            padding-bottom: 8px;
         }
 
         .dash-label {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .dash-value {
-            font-size: 1.6rem;
+            font-size: 1.4rem; /* 【緊湊】微調金額字體大小 */
             font-weight: 600;
             letter-spacing: -0.3px;
             transition: filter 0.3s ease;
             color: #0f172a;
-            margin-top: 2px;
         }
 
         .blur-effect {
@@ -83,8 +82,8 @@
             background: rgba(255, 255, 255, 0.8);
             border: 1px solid #cbd5e1;
             color: #64748b;
-            padding: 2px 7px;
-            border-radius: 20px;
+            padding: 1px 6px;
+            border-radius: 12px;
             cursor: pointer;
             font-size: 0.65rem;
             transition: all 0.2s;
@@ -93,47 +92,46 @@
         .toggle-btn:hover {
             background: #fff;
             color: var(--primary-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
-            margin-bottom: 35px;
+            padding: 16px 20px; /* 【緊湊】縮減表單內邊距 */
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+            margin-bottom: 22px; /* 【緊湊】縮減下方間距 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
 
         .form-card.editing-mode {
             border-color: var(--primary-color);
-            box-shadow: 0 0 20px rgba(79, 70, 229, 0.08);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.08);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* 【緊湊】微調最小寬度 */
+            gap: 12px; /* 【緊湊】縮減輸入框之間的間隙 */
+            margin-bottom: 14px;
         }
 
         label {
             display: block;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
         input, select {
             width: 100%;
-            padding: 11px 14px;
+            padding: 8px 12px; /* 【緊湊】縮減輸入框內邊距，降低高度 */
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            border-radius: 6px;
             box-sizing: border-box;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             background-color: #f8fafc;
             color: var(--text-main);
             transition: all 0.2s;
@@ -143,12 +141,11 @@
             outline: none;
             border-color: var(--primary-color);
             background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
 
         .btn-container {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
         button.add-btn {
@@ -156,16 +153,11 @@
             background-color: var(--success-color);
             color: white;
             border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 9px; /* 【緊湊】降低按鈕高度 */
+            border-radius: 6px;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        button.add-btn:hover {
-            opacity: 0.9;
         }
 
         button.add-btn.update-style {
@@ -177,29 +169,25 @@
             background-color: #e2e8f0;
             color: #475569;
             border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 0.95rem;
+            padding: 9px;
+            border-radius: 6px;
+            font-size: 0.9rem;
             cursor: pointer;
             display: none;
         }
 
-        button.cancel-btn:hover {
-            background-color: #cbd5e1;
-        }
-
         .error-msg {
             color: #ef4444;
-            font-size: 0.85rem;
-            margin-top: 12px;
+            font-size: 0.8rem;
+            margin-top: 8px;
             display: none;
             text-align: center;
         }
 
         /* Deposit List */
         .list-title {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
+            font-size: 1rem;
+            margin-bottom: 10px; /* 【緊湊】縮減標題下方空間 */
             font-weight: 600;
             color: #475569;
             letter-spacing: 0.5px;
@@ -208,78 +196,81 @@
         #depositList {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px; /* 【緊湊】讓列表卡片排得更緊密 */
         }
 
         .deposit-card {
             background: var(--card-bg);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+            padding: 12px 18px; /* 【緊湊】縮減定存卡片的上下內邊距 */
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; /* 改為頂部對齊 */
+            align-items: flex-start; 
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
             position: relative;
-            /* 【修改】移除了 ::before 的藍色邊條樣式 */
         }
 
         /* 左側主要資訊區 */
         .card-main {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 4px; /* 【緊湊】縮減文字行與行之間的間距 */
             flex-grow: 1;
         }
 
         .bank-tag {
             background: #f0fdf4;
             color: #166534;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
             font-weight: 600;
             width: fit-content;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
 
         .card-details {
-            font-size: 1.15rem;
+            font-size: 1.05rem; /* 【緊湊】微調卡片內主標題大小 */
             font-weight: 600;
             color: #1e293b;
         }
 
         /* 分行顯示的副資訊樣式 */
         .card-sub-line {
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* 【緊湊】微調字體 */
             color: #64748b;
+            line-height: 1.3;
+        }
+        
+        .card-sub-line strong {
+            color: #475569;
         }
 
-        /* 【修改】右側資訊群組：包含倒數日期和按鈕 */
+        /* 右側資訊群組：包含倒數日期和按鈕 */
         .card-right {
             display: flex;
             flex-direction: column;
-            align-items: flex-end; /* 內容全部靠右對齊 */
-            gap: 20px; /* 倒數日期與按鈕之間的間距 */
+            align-items: flex-end; 
+            gap: 12px; /* 【緊湊】縮減倒數與按鈕之間的垂直間距 */
             flex-shrink: 0;
-            margin-left: 20px;
-            min-width: 120px; /* 確保右側有足夠空間 */
+            margin-left: 15px;
+            min-width: 100px; 
         }
 
-        /* 【修改】倒數日期現在強制靠右顯示 */
         .countdown {
             font-weight: 600;
             color: #b91c1c;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             text-align: right;
-            white-space: nowrap; /* 防止換行 */
+            white-space: nowrap; 
         }
 
         /* 按鈕群組 */
         .action-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             align-items: center;
         }
 
@@ -288,9 +279,9 @@
             border: none;
             color: #94a3b8;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             text-decoration: none;
-            padding: 0px 5px;
+            padding: 0px 2px;
             transition: color 0.2s;
         }
 
@@ -306,7 +297,7 @@
             color: var(--primary-color);
         }
 
-        /* Expired Item Styling (清新淡出) */
+        /* Expired Item Styling */
         .deposit-card.expired {
             background-color: #f8fafc;
             color: var(--expired-color);
@@ -486,13 +477,13 @@
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             
-            /* 【核心修改點】重新佈局，將倒數日期移至右側群組 */
+            /* 【緊湊優化】移除 Emoji，改用簡潔的 strong 標籤分類，視覺上更加乾淨 */
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
                     <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
-                    <div class="card-sub-line">📅 Maturity: ${item.expiryDate}</div>
-                    <div class="card-sub-line">💰 Net Interest: $${actualItemInterest.toFixed(2)}</div>
+                    <div class="card-sub-line"><strong>Maturity:</strong> ${item.expiryDate}</div>
+                    <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
                 </div>
                 <div class="card-right">
                     <span class="countdown">${countdownText}</span>
@@ -506,6 +497,7 @@
         });
     }
 
+    // 後續邏輯保持不變
     function handleFormSubmit() {
         const bank = document.getElementById('bank').value;
         const amount = document.getElementById('amount').value;
