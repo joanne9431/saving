@@ -30,51 +30,50 @@
             margin: 0 auto;
         }
 
-        /* Dashboard Overview - 修改為單欄、分兩行顯示 */
+        /* Dashboard Overview - 已調小字體與間距 */
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 30px;
+            padding: 22px 28px; /* 微調內邊距，讓整體更精緻 */
             border-radius: 20px;
             box-shadow: 0 4px 20px rgba(224, 231, 255, 0.5);
             margin-bottom: 35px;
             border: 1px solid rgba(255, 255, 255, 0.6);
             
-            /* 改為 Flex 直向排列 */
             display: flex;
             flex-direction: column;
-            gap: 25px; 
+            gap: 15px; /* 縮小兩行之間的間距 */
         }
 
         /* 每一行的獨立樣式 */
         .dash-row {
-            padding-bottom: 5px;
+            padding-bottom: 2px;
         }
 
-        /* 在兩行之間加一條淡淡的分隔線 */
+        /* 淡淡的分隔線 */
         .dash-row:first-child {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+            padding-bottom: 12px;
         }
 
         .dash-label {
-            font-size: 0.85rem;
+            font-size: 0.8rem; /* 標籤字體微微調小 */
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .dash-value {
-            font-size: 2.4rem; /* 加大數字，更有儀表板的視覺震撼感 */
+            font-size: 1.6rem; /* 【已修改】數字由 2.4rem 縮小至 1.6rem，更加秀氣 */
             font-weight: 600;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.3px;
             transition: filter 0.3s ease;
             color: #0f172a;
-            margin-top: 5px;
+            margin-top: 2px;
         }
 
         .blur-effect {
@@ -86,10 +85,10 @@
             background: rgba(255, 255, 255, 0.8);
             border: 1px solid #cbd5e1;
             color: #64748b;
-            padding: 3px 8px;
+            padding: 2px 7px;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             transition: all 0.2s;
         }
 
@@ -435,7 +434,6 @@
         renderStatus();
     }
 
-    // 支援單獨一行手動隱藏
     function toggleVisibility(id) {
         document.getElementById(id).classList.toggle('blur-effect');
     }
