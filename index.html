@@ -340,16 +340,14 @@
     <div class="dashboard">
         <div class="dash-row">
             <div class="dash-label">
-                Total Principal (Active)
-                <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
+                Total Principal (Active) <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
             </div>
             <div id="totalDeposit" class="dash-value">$0.00</div>
         </div>
         
         <div class="dash-row">
             <div class="dash-label">
-                Total Term Interest (Active)
-                <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
+                Total Term Interest (Annual Total) <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
             </div>
             <div id="totalInterest" class="dash-value">$0.00</div>
         </div>
@@ -408,7 +406,7 @@
 <script>
     let deposits = JSON.parse(localStorage.getItem('my_term_deposits'));
     let editingId = null;
-    let userHasManuallyChangedDate = false; // 新增：用來記錄使用者是否自己改過日期
+    let userHasManuallyChangedDate = false;
     
     if (!deposits || deposits.length === 0) {
         deposits = [
@@ -419,7 +417,6 @@
     }
 
     window.onload = function() {
-        // 監聽日期欄位，當使用者手動修改日期時，停止自動連動
         document.getElementById('expiryDate').addEventListener('input', function() {
             userHasManuallyChangedDate = true;
         });
@@ -427,7 +424,6 @@
     };
 
     function updateMaturityDate() {
-        // 編輯狀態中，或是使用者已經手動改過日期，就不要用選單自動覆蓋它
         if (editingId !== null || userHasManuallyChangedDate) {
             renderStatus();
             return;
@@ -457,14 +453,18 @@
         let totalDeposit = 0;
         let totalInterest = 0;
 
+        /* 【核心修改點】重新定義本金與利息的加總邏輯 */
         deposits.forEach(item => {
             const expiry = new Date(item.expiryDate);
-            // 只有「未來的紀錄」或「今天到期的紀錄」才會計入儀表板
+            const itemInterest = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
+            
+            // 1. 本金：只有還沒到期（Active）的才計入
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
-                const itemInterest = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
-                totalInterest += itemInterest;
             }
+            
+            // 2. 利息：不論是否到期，全部紀錄（全年度）一併累加進去
+            totalInterest += itemInterest;
         });
 
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
@@ -550,10 +550,7 @@
         }
 
         saveToLocalStorage();
-        
-        // 儲存後重置手動修改日期的狀態，讓下一次新增時能重新預設日期
         userHasManuallyChangedDate = false; 
-        
         renderStatus();
 
         document.getElementById('amount').value = '';
