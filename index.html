@@ -252,7 +252,7 @@
             color: #475569;
         }
 
-        /* 右側資訊群組：包含倒數日期和按鈕 */
+        /* 右側資訊群組 */
         .card-right {
             display: flex;
             flex-direction: column;
@@ -485,12 +485,10 @@
             const expiry = new Date(item.expiryDate);
             const expiryYear = parseInt(item.expiryDate.split('-')[0]);
             
-            // 1. Total Principal 依然計算「未到期」的存款本金
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
             }
 
-            // 2. Dashboard 總利息更動：已到期，且到期年份完全符合目標年份，總利息直接全額歸入該年
             if (expiry < today && expiryYear === activeYear) {
                 let totalInterestEarned = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
                 totalInterestFull += totalInterestEarned;
@@ -500,7 +498,6 @@
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('totalInterest').innerText = `$${totalInterestFull.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-        // 排序
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
             const isBExpired = new Date(b.expiryDate) < today;
@@ -511,7 +508,6 @@
 
         listContainer.innerHTML = '';
 
-        // 3. RECORDS 篩選限制：只顯示以開始日期為基準，一年內 (過去 365 天內) 的記錄
         const oneYearAgo = new Date();
         oneYearAgo.setDate(oneYearAgo.getDate() - 365);
 
@@ -663,7 +659,7 @@
         }
     }
 
-    /* Excel 匯出：同步改為以「到期年份」直接完整歸入計算，不拆算 */
+    /* 【修正點】Excel 底部總結區移除了 Total Principal 欄位避免重複計算 */
     function exportToExcelXLSX() {
         if (deposits.length === 0) return alert("There is no data to export yet!");
         if (typeof XLSX === 'undefined') return alert("SheetJS library not loaded.");
@@ -696,10 +692,9 @@
             selectedYear = sortedYears[0];
         }
 
-        // 切換儀表板統計年份顯示
         renderStatus(parseInt(selectedYear));
 
-        // 篩選出「到期年份」等於選擇年份的所有定存記錄
+        // 篩選該年份到期的紀錄
         let filteredDeposits = deposits.filter(d => d.expiryDate && d.expiryDate.startsWith(selectedYear));
 
         if (filteredDeposits.length === 0) {
@@ -712,16 +707,13 @@
             ["Start Date", "Maturity Date", "Bank Name", "Principal Amount", "Interest Rate", "Term", "Net Interest"]
         ];
 
-        let totalPrincipalInVolume = 0;
         let totalMaturedInterestForYear = 0;
 
         filteredDeposits.forEach(d => {
             let totalInterest = d.amount * (d.rate / 100) * (d.months / 12);
             const expiry = new Date(d.expiryDate);
-
-            totalPrincipalInVolume += d.amount;
             
-            // 只有「已到期」的定存，其全額總利息才會累計入報表下方的總數
+            // 只有已到期的才計入總結算
             if (expiry < sysDate) {
                 totalMaturedInterestForYear += totalInterest;
             }
@@ -737,12 +729,13 @@
             ]);
         });
 
+        // 總結區：已完全拿掉 Total Portfolio Principal，只留利息加總
         sheetRows.push(["", "", "", "", "", "", ""]); 
         sheetRows.push([
             `${selectedYear} Report Summary`, 
             "", 
             "", 
-            `Total Portfolio Principal: $${totalPrincipalInVolume.toLocaleString()}`, 
+            "", 
             "", 
             "", 
             `Total Matured Annual Interest: $${totalMaturedInterestForYear.toFixed(2)}`
