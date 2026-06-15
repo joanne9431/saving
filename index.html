@@ -439,7 +439,7 @@
         resetFormDates();
     };
 
-    // 核心修正：完美對日計算，絕無 1 日誤差
+    // 精準純粹的月份加減（完全回歸對日，7月2日 - 3個月 絕對等於 4月2日）
     function calculateShiftedDate(baseDateStr, monthsToShift, isForward = true) {
         let parts = baseDateStr.split('-');
         let year = parseInt(parts[0], 10);
@@ -449,17 +449,15 @@
         let tempDate = new Date(year, month, 1);
         
         if (isForward) {
-            // 從 Start Date 正推推算 Maturity Date (例如 4月2日 + 3個月 = 7月2日)
             tempDate.setMonth(tempDate.getMonth() + monthsToShift);
         } else {
-            // 從 Maturity Date 倒退回 Start Date (例如 7月2日 - 3個月 = 4月2日)
             tempDate.setMonth(tempDate.getMonth() - monthsToShift);
         }
 
         let targetYear = tempDate.getFullYear();
         let targetMonth = tempDate.getMonth();
         
-        // 處理小月月底天數不足的溢出防護 (例如 31日 遇到 30日)
+        // 大小月月底溢出安全保護（例如：31號遇到只有30號的月份時，自動設為30號）
         let maxDaysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
         let finalDay = Math.min(day, maxDaysInTargetMonth);
         
@@ -467,7 +465,7 @@
         return finalDate.toISOString().split('T')[0];
     }
 
-    // 日期聯動核心控制
+    // 日期連動核心控制：移除了所有會造成二次重複計算的因素
     function onDateParameterChange(triggerType) {
         const monthsSelect = document.getElementById('months');
         const expiryInput = document.getElementById('expiryDate');
@@ -539,6 +537,7 @@
         let totalInterestFull = 0;
 
         deposits.forEach(item => {
+            // 如果讀取到舊的沒有起息日的資料，直接對日回推，不加入任何跨日偏置
             if (!item.startDate) {
                 item.startDate = calculateShiftedDate(item.expiryDate, (item.months || 3), false);
             }
