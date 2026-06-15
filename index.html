@@ -252,7 +252,7 @@
             color: #475569;
         }
 
-        /* 右側資訊群組：包含倒數日期和按鈕 */
+        /* 右側資訊群組 */
         .card-right {
             display: flex;
             flex-direction: column;
@@ -360,7 +360,7 @@
         
         <div class="dash-row">
             <div class="dash-label">
-                Total Term Interest
+                <span id="interestYearLabel">Current Year</span> Matured Interest (By Maturity Year)
                 <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
             </div>
             <div id="totalInterest" class="dash-value">$0.00</div>
@@ -371,7 +371,7 @@
         <div class="form-grid">
             <div>
                 <label>Bank Name</label>
-                <select id="bank">
+               <select id="bank">
                     <option value="HSBC">HSBC</option>
                     <option value="Livi">Livi</option>
                     <option value="BOCHK">BOCHK</option>
@@ -389,9 +389,9 @@
                 <select id="months" onchange="updateMaturityDate()">
                     <option value="1">1 Month</option>
                     <option value="2">2 Months</option>
-                    <option value="3">3 Months</option>
+                    <option value="3" selected>3 Months</option>
                     <option value="6">6 Months</option>
-                    <option value="12" selected>12 Months</option>
+                    <option value="12">12 Months</option>
                 </select>
             </div>
             <div>
@@ -426,11 +426,10 @@
     let editingId = null;
     let userHasManuallyChangedDate = false;
     
-    // 初始化默認數據（增加 startDate 欄位保持向下相容）
     if (!deposits || deposits.length === 0) {
         deposits = [
-            { id: 1, bank: "HSBC", amount: 200000, rate: 4.1, months: 6, startDate: "2026-06-30", expiryDate: "2026-12-31" },
-            { id: 2, bank: "ZA Bank", amount: 50000, rate: 3.8, months: 3, startDate: "2026-07-15", expiryDate: "2026-10-15" }
+            { id: 1, bank: "HSBC", amount: 200000, rate: 4.1, months: 6, startDate: "2026-01-15", expiryDate: "2026-07-15" },
+            { id: 2, bank: "ZA Bank", amount: 50000, rate: 3.8, months: 12, startDate: "2025-11-01", expiryDate: "2026-11-01" }
         ];
         saveToLocalStorage();
     }
@@ -464,26 +463,40 @@
         localStorage.setItem('my_term_deposits', JSON.stringify(deposits));
     }
 
-    function renderStatus() {
+    function renderStatus(targetYearForInterest = null) {
         const listContainer = document.getElementById('depositList');
         const today = new Date();
         today.setHours(0,0,0,0);
 
+        const currentSystemYear = today.getFullYear();
+        const activeYear = targetYearForInterest || currentSystemYear;
+        document.getElementById('interestYearLabel').innerText = `${activeYear}`;
+
         let totalDeposit = 0;
-        let totalInterest = 0;
+        let totalInterestFull = 0;
 
         deposits.forEach(item => {
+            if (!item.startDate) {
+                let sObj = new Date(item.expiryDate);
+                sObj.setMonth(sObj.getMonth() - (item.months || 12));
+                item.startDate = sObj.toISOString().split('T')[0];
+            }
+
             const expiry = new Date(item.expiryDate);
-            const itemInterest = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
+            const expiryYear = parseInt(item.expiryDate.split('-')[0]);
             
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
             }
-            totalInterest += itemInterest;
+
+            if (expiry < today && expiryYear === activeYear) {
+                let totalInterestEarned = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
+                totalInterestFull += totalInterestEarned;
+            }
         });
 
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        document.getElementById('totalInterest').innerText = `$${totalInterestFull.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
@@ -495,7 +508,16 @@
 
         listContainer.innerHTML = '';
 
+        const oneYearAgo = new Date();
+        oneYearAgo.setDate(oneYearAgo.getDate() - 365);
+
         deposits.forEach(item => {
+            const startDateObj = new Date(item.startDate);
+            
+            if (startDateObj < oneYearAgo) {
+                return; 
+            }
+
             const expiry = new Date(item.expiryDate);
             const isExpired = expiry < today;
             const timeDiff = expiry.getTime() - today.getTime();
@@ -511,6 +533,7 @@
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
                     <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
+                    <div class="card-sub-line"><strong>Start Date:</strong> ${item.startDate}</div>
                     <div class="card-sub-line"><strong>Maturity:</strong> ${item.expiryDate}</div>
                     <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
                 </div>
@@ -540,7 +563,6 @@
         }
         errorMsg.style.display = 'none';
 
-        // 計算定存日期 (StartDate)：到期日往前推算對應月份
         const expDateObj = new Date(expiryDate);
         expDateObj.setMonth(expDateObj.getMonth() - parseInt(months));
         const calculatedStartDate = expDateObj.toISOString().split('T')[0];
@@ -548,7 +570,6 @@
         if (editingId !== null) {
             const index = deposits.findIndex(d => d.id === editingId);
             if (index !== -1) {
-                // 如果原本有 startDate 則保留，否則更新
                 const oldStartDate = deposits[index].startDate || calculatedStartDate;
                 deposits[index] = {
                     id: editingId,
@@ -568,7 +589,7 @@
                 amount: parseFloat(amount),
                 rate: parseFloat(rate),
                 months: parseInt(months),
-                startDate: new Date().toISOString().split('T')[0], // 新增時為今天
+                startDate: new Date().toISOString().split('T')[0], 
                 expiryDate
             };
             deposits.push(newDeposit);
@@ -638,12 +659,10 @@
         }
     }
 
-    /* 【修改點】調整為：不分頁 (一頁一年)、包含定存日期與到期日 */
     function exportToExcelXLSX() {
         if (deposits.length === 0) return alert("There is no data to export yet!");
-        if (typeof XLSX === 'undefined') return alert("SheetJS library not loaded yet.");
+        if (typeof XLSX === 'undefined') return alert("SheetJS library not loaded.");
 
-        // 1. 蒐集所有存在的到期年份
         let availableYears = new Set();
         deposits.forEach(d => {
             if (d.expiryDate) {
@@ -657,7 +676,6 @@
         const currentSystemYear = String(sysDate.getFullYear());
         let selectedYear = currentSystemYear;
 
-        // 2. 多年份時跳出選擇
         if (sortedYears.length > 1) {
             let yearPrompt = prompt(
                 `Detected data across multiple years.\nAvailable years: ${sortedYears.join(', ')}\n\nPlease enter the year you want to export:`, 
@@ -666,76 +684,64 @@
             if (yearPrompt === null) return; 
             yearPrompt = yearPrompt.trim();
             if (!sortedYears.includes(yearPrompt)) {
-                return alert(`Invalid year choice! Please choose from: ${sortedYears.join(', ')}`);
+                return alert(`Invalid year choice!`);
             }
             selectedYear = yearPrompt;
         } else if (sortedYears.length === 1) {
             selectedYear = sortedYears[0];
         }
 
-        // 3. 篩選該年份數據
+        renderStatus(parseInt(selectedYear));
+
         let filteredDeposits = deposits.filter(d => d.expiryDate && d.expiryDate.startsWith(selectedYear));
+
         if (filteredDeposits.length === 0) {
-            return alert(`No data found for the year ${selectedYear}.`);
+            return alert(`No data found maturing in the year ${selectedYear}.`);
         }
 
-        // 按到期日由近到遠排序
         filteredDeposits.sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
 
-        // 4. 建構表格內容：加入 "Deposit Date" 與 "Maturity Date"
         let sheetRows = [
-            ["Deposit Date", "Maturity Date", "Bank Name", "Principal Amount", "Interest Rate", "Term", "Net Interest"]
+            ["Start Date", "Maturity Date", "Bank Name", "Principal Amount", "Interest Rate", "Term", "Net Interest"]
         ];
 
-        let annualTotalPrincipal = 0;
-        let annualTotalInterest = 0;
+        let totalMaturedInterestForYear = 0;
 
         filteredDeposits.forEach(d => {
-            let actualInterest = d.amount * (d.rate / 100) * (d.months / 12);
-            annualTotalPrincipal += d.amount;
-            annualTotalInterest += actualInterest;
-
-            // 確保向下相容舊數據，若無簡化紀錄的定存日，則自動往前推算顯示
-            let displayStartDate = d.startDate;
-            if (!displayStartDate) {
-                let expObj = new Date(d.expiryDate);
-                expObj.setMonth(expObj.getMonth() - d.months);
-                displayStartDate = expObj.toISOString().split('T')[0];
+            let totalInterest = d.amount * (d.rate / 100) * (d.months / 12);
+            const expiry = new Date(d.expiryDate);
+            
+            if (expiry < sysDate) {
+                totalMaturedInterestForYear += totalInterest;
             }
 
             sheetRows.push([
-                displayStartDate,
+                d.startDate,
                 d.expiryDate,
                 d.bank,
                 `$${d.amount.toLocaleString()}`,
                 `${d.rate}%`,
-                `${d.months} Months`,
-                `$${actualInterest.toFixed(2)}`
+                `${d.months} M`,
+                `$${totalInterest.toFixed(2)}`
             ]);
         });
 
-        // 5. 表尾加入全年度總結報告 (不區分月份分頁)
-        sheetRows.push(["", "", "", "", "", "", ""]); // 空行
+        sheetRows.push(["", "", "", "", "", "", ""]); 
         sheetRows.push([
-            `${selectedYear} Annual Summary`, 
+            `${selectedYear} Report Summary`, 
             "", 
             "", 
-            `Total Principal: $${annualTotalPrincipal.toLocaleString()}`, 
             "", 
             "", 
-            `Total Interest: $${annualTotalInterest.toFixed(2)}`
+            "", 
+            `Total Matured Annual Interest: $${totalMaturedInterestForYear.toFixed(2)}`
         ]);
 
-        // 6. 寫入單一頁 Sheet
         let wb = XLSX.utils.book_new();
         let ws = XLSX.utils.aoa_to_sheet(sheetRows);
-        
-        // 欄寬自適應微調
-        ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 18 }]; 
+        ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }]; 
         
         XLSX.utils.book_append_sheet(wb, ws, `Deposit_Report_${selectedYear}`);
-
-        // 7. 輸出下載
         XLSX.writeFile(wb, `Deposit_Report_${selectedYear}_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 </script>
