@@ -374,6 +374,31 @@
         .deposit-card.expired .countdown {
             color: #94a3b8;
         }
+
+        /* 修改這裡，將原本的 #depositList 樣式改為以下 */
+#depositList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; 
+    margin-bottom: 15px;
+    
+    /* 新增以下屬性 */
+    max-height: 400px;      /* 設定清單的最大高度，您可以依需求調整 */
+    overflow-y: auto;       /* 超出高度時顯示垂直滾軸 */
+    padding-right: 5px;     /* 避免滾軸遮擋內容 */
+    
+    /* 滾軸美化 (選用) */
+    scrollbar-width: thin;
+}
+
+/* 讓滾軸在 Chrome/Safari 更好看 */
+#depositList::-webkit-scrollbar {
+    width: 6px;
+}
+#depositList::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
     </style>
 </head>
 <body>
