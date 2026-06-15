@@ -24,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 10px 12px; 
+            padding: 10px 12px; /* 壓縮網頁四周留白 */
             -webkit-font-smoothing: antialiased;
         }
 
@@ -37,10 +37,10 @@
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 10px 16px; 
+            padding: 10px 16px; /* 壓縮內襯留白 */
             border-radius: 10px;
             box-shadow: 0 4px 12px rgba(224, 231, 255, 0.3);
-            margin-bottom: 12px; 
+            margin-bottom: 12px; /* 減少與下方表單的間距 */
             border: 1px solid rgba(255, 255, 255, 0.6);
             display: flex;
             flex-direction: column;
@@ -67,48 +67,39 @@
             gap: 6px;
         }
 
-        .dash-value-wrapper {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-            min-width: 130px; 
-        }
-
         .dash-value {
-            font-size: 1.25rem; 
+            font-size: 1.25rem; /* 微調數字大小以節省空間 */
             font-weight: 600;
             letter-spacing: -0.3px;
+            transition: filter 0.3s ease;
             color: #0f172a;
-            transition: opacity 0.2s ease;
         }
 
-        .secure-mask {
-            position: absolute;
-            top: 2px;
-            left: 0;
-            width: 100%;
-            height: calc(100% - 4px);
-            background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
-            background-size: 200% 100%;
-            border-radius: 4px;
-            animation: shimmer 1.6s infinite linear;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
+        .blur-effect {
+            filter: blur(8px);
+            user-select: none;
         }
 
-        .is-hidden .dash-value { opacity: 0; }
-        .is-hidden .secure-mask { opacity: 1; pointer-events: auto; }
+        .toggle-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #cbd5e1;
+            color: #64748b;
+            padding: 1px 6px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            transition: all 0.2s;
+        }
 
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .toggle-btn:hover {
+            background: #fff;
+            color: var(--primary-color);
         }
 
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            padding: 12px 16px; 
+            padding: 12px 16px; /* 減少表單留白 */
             border-radius: 10px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
             margin-bottom: 12px; 
@@ -121,15 +112,15 @@
             box-shadow: 0 0 10px rgba(79, 70, 229, 0.08);
         }
 
-        /* 修正：強制將 5 個格子平分空間，寬度完全統一 */
+        /* 【關鍵修正】強制 5 個欄位完全等寬，避免 Maturity Date 拉長 */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr); 
-            gap: 8px; 
+            gap: 8px; /* 減少輸入框之間的距離 */
             margin-bottom: 10px;
         }
 
-        /* 手機板自動轉換：避免寬度太窄時擠壓，在 RWD 寬度小於 600px 時改為自動平鋪 */
+        /* RWD 響應式：手機版寬度太窄時自動轉換，避免擠壓 */
         @media (max-width: 600px) {
             .form-grid {
                 grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
@@ -142,14 +133,14 @@
             color: #64748b;
             font-weight: 500;
             margin-bottom: 3px;
-            white-space: nowrap; /* 防止標籤文字被擠壓換行 */
+            white-space: nowrap; /* 防止標籤文字擠壓換行 */
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         input, select {
             width: 100%;
-            padding: 6px 10px; 
+            padding: 6px 10px; /* 壓縮輸入框高度 */
             border: 1px solid #e2e8f0;
             border-radius: 5px;
             box-sizing: border-box;
@@ -214,16 +205,16 @@
 
         /* Records 獨立滾軸區域 */
         .records-scroll-container {
-            max-height: 380px; 
-            overflow-y: auto;  
-            padding-right: 4px; 
+            max-height: 380px; /* 限制最高高度，超過就滾動 */
+            overflow-y: auto;  /* 允許垂直方向滾動 */
+            padding-right: 4px; /* 幫滾軸預留右邊距 */
             margin-bottom: 12px;
             border-radius: 8px;
         }
 
         /* 美化獨立滾軸樣式 */
         .records-scroll-container::-webkit-scrollbar {
-            width: 5px; 
+            width: 5px; /* 極細滾軸 */
         }
         .records-scroll-container::-webkit-scrollbar-track {
             background: transparent; 
@@ -239,17 +230,17 @@
         #depositList {
             display: flex;
             flex-direction: column;
-            gap: 6px; 
+            gap: 6px; /* 縮減卡片間距 */
         }
 
         .deposit-card {
             background: var(--card-bg);
-            padding: 10px 14px; 
+            padding: 10px 14px; /* 壓縮卡片內部留白 */
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
             display: flex;
             justify-content: space-between;
-            align-items: center; 
+            align-items: center; /* 置中對齊更整齊 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
             position: relative;
@@ -258,7 +249,7 @@
         .card-main {
             display: flex;
             flex-direction: column;
-            gap: 2px; 
+            gap: 2px; /* 壓縮文字行距 */
             flex-grow: 1;
         }
 
@@ -352,19 +343,19 @@
 
     <div class="dashboard">
         <div class="dash-row">
-            <div class="dash-label">Total Principal</div>
-            <div id="wrapperDeposit" class="dash-value-wrapper is-hidden" onclick="toggleVisibility('wrapperDeposit')" title="Click to show/hide">
-                <div id="totalDeposit" class="dash-value">$0.00</div>
-                <div class="secure-mask"></div>
+            <div class="dash-label">
+                Total Principal
+                <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
             </div>
+            <div id="totalDeposit" class="dash-value blur-effect">$0.00</div>
         </div>
         
         <div class="dash-row">
-            <div class="dash-label"><span id="interestYearLabel">Current Year</span> Matured Interest</div>
-            <div id="wrapperInterest" class="dash-value-wrapper" onclick="toggleVisibility('wrapperInterest')" title="Click to show/hide">
-                <div id="totalInterest" class="dash-value">$0.00</div>
-                <div class="secure-mask"></div>
+            <div class="dash-label">
+                <span id="interestYearLabel">Current Year</span> Matured Interest
+                <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
             </div>
+            <div id="totalInterest" class="dash-value">$0.00</div>
         </div>
     </div>
 
@@ -520,7 +511,7 @@
     }
 
     function toggleVisibility(id) {
-        document.getElementById(id).classList.toggle('is-hidden');
+        document.getElementById(id).classList.toggle('blur-effect');
     }
 
     function saveToLocalStorage() {
@@ -588,6 +579,7 @@
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             
+            // 將原本兩行的 Start Date 和 Maturity 合併為一行，大幅減少空隙
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
