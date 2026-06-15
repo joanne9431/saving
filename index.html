@@ -8,6 +8,7 @@
         :root {
             --primary-color: #2563eb;
             --success-color: #16a34a;
+            --warning-color: #ea580c;
             --bg-color: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #1e293b;
@@ -86,6 +87,13 @@
             border-radius: 12px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             margin-bottom: 25px;
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .form-card.editing-mode {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.2);
         }
 
         .form-grid {
@@ -105,8 +113,13 @@
             background-color: #fff;
         }
 
+        .btn-container {
+            display: flex;
+            gap: 10px;
+        }
+
         button.add-btn {
-            width: 100%;
+            flex: 2;
             background-color: var(--success-color);
             color: white;
             border: none;
@@ -119,6 +132,30 @@
 
         button.add-btn:hover {
             background-color: #15803d;
+        }
+
+        button.add-btn.update-style {
+            background-color: var(--primary-color);
+        }
+
+        button.add-btn.update-style:hover {
+            background-color: #1d4ed8;
+        }
+
+        button.cancel-btn {
+            flex: 1;
+            background-color: #64748b;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        button.cancel-btn:hover {
+            background-color: #475569;
         }
 
         .error-msg {
@@ -193,6 +230,12 @@
             font-size: 0.95rem;
         }
 
+        .action-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
         .action-btn {
             background: none;
             border: none;
@@ -200,6 +243,11 @@
             cursor: pointer;
             font-size: 0.85rem;
             text-decoration: underline;
+            padding: 0;
+        }
+
+        .action-btn.edit-btn-text {
+            color: var(--primary-color);
         }
 
         /* Expired Item Styling */
@@ -244,7 +292,7 @@
         </div>
     </div>
 
-    <div class="form-card">
+    <div id="formCard" class="form-card">
         <div class="form-grid">
             <div>
                 <label style="font-size:0.8rem; color:var(--text-muted)">Bank Name</label>
@@ -280,7 +328,12 @@
                 <input type="date" id="expiryDate">
             </div>
         </div>
-        <button class="add-btn" onclick="addDeposit()">Add Deposit Record</button>
+        
+        <div class="btn-container">
+            <button id="submitBtn" class="add-btn" onclick="handleFormSubmit()">Add Deposit Record</button>
+            <button id="cancelBtn" class="cancel-btn" onclick="exitEditMode()">Cancel</button>
+        </div>
+        
         <div id="errorMsg" class="error-msg">Please fill out all fields. Amount and Rate must be greater than 0!</div>
     </div>
 
@@ -290,10 +343,9 @@
 </div>
 
 <script>
-    // Local storage sync setup
     let deposits = JSON.parse(localStorage.getItem('my_term_deposits'));
+    let editingId = null; // Tracks which ID is currently being edited
     
-    // Sample placeholder data configured with term values
     if (!deposits || deposits.length === 0) {
         deposits = [
             { id: 1, bank: "HSBC", amount: 200000, rate: 4.1, months: 6, expiryDate: "2026-12-31" },
@@ -303,11 +355,13 @@
     }
 
     window.onload = function() {
-        updateMaturityDate(); // Initialize default date picker based on selected term
+        updateMaturityDate(); 
     };
 
-    // Automatically calculate maturity date based on current date + selected months
     function updateMaturityDate() {
+        // Only auto-generate date if we aren't currently editing an existing record
+        if (editingId !== null) return;
+
         const today = new Date();
         const selectedMonths = parseInt(document.getElementById('months').value);
         today.setMonth(today.getMonth() + selectedMonths);
@@ -324,7 +378,6 @@
         localStorage.setItem('my_term_deposits', JSON.stringify(deposits));
     }
 
-    // Main calculation and rendering logic
     function renderStatus() {
         const listContainer = document.getElementById('depositList');
         const today = new Date();
@@ -333,12 +386,10 @@
         let totalDeposit = 0;
         let totalInterest = 0;
 
-        // Calculate actual gains for active records
         deposits.forEach(item => {
             const expiry = new Date(item.expiryDate);
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
-                // Pro-rated interest calculation based on the specific deposit term length
                 const itemInterest = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
                 totalInterest += itemInterest;
             }
@@ -347,7 +398,7 @@
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-        // Sort items: Active on top (ascending by date), Matured items forced to the bottom
+        // Sort items: Active on top, Matured on bottom
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
             const isBExpired = new Date(b.expiryDate) < today;
@@ -365,8 +416,6 @@
             const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
             let countdownText = isExpired ? "Matured" : (daysLeft === 0 ? "Matures Today!" : `${daysLeft} days left`);
-            
-            // Calculate specific item payout interest
             const actualItemInterest = item.amount * (item.rate / 100) * (item.months / 12);
 
             const card = document.createElement('div');
@@ -379,14 +428,18 @@
                 </div>
                 <div class="card-right">
                     <span class="countdown">${countdownText}</span>
-                    <button class="action-btn" onclick="deleteDeposit(${item.id})">Delete</button>
+                    <div class="action-group">
+                        <button class="action-btn edit-btn-text" onclick="startEdit(${item.id})">Edit</button>
+                        <button class="action-btn" onclick="deleteDeposit(${item.id})">Delete</button>
+                    </div>
                 </div>
             `;
             listContainer.appendChild(card);
         });
     }
 
-    function addDeposit() {
+    // Single unified form submission handler
+    function handleFormSubmit() {
         const bank = document.getElementById('bank').value;
         const amount = document.getElementById('amount').value;
         const months = document.getElementById('months').value;
@@ -394,32 +447,108 @@
         const expiryDate = document.getElementById('expiryDate').value;
         const errorMsg = document.getElementById('errorMsg');
 
-        // Validation
         if (!amount || !rate || !expiryDate || parseFloat(amount) <= 0 || parseFloat(rate) <= 0) {
             errorMsg.style.display = 'block';
             return;
         }
         errorMsg.style.display = 'none';
 
-        const newDeposit = {
-            id: Date.now(),
-            bank: bank,
-            amount: parseFloat(amount),
-            rate: parseFloat(rate),
-            months: parseInt(months),
-            expiryDate: expiryDate
-        };
+        if (editingId !== null) {
+            // Edit existing record
+            const index = deposits.findIndex(d => d.id === editingId);
+            if (index !== -1) {
+                deposits[index] = {
+                    id: editingId,
+                    bank,
+                    amount: parseFloat(amount),
+                    rate: parseFloat(rate),
+                    months: parseInt(months),
+                    expiryDate
+                };
+            }
+            exitEditMode();
+        } else {
+            // Add completely new record
+            const newDeposit = {
+                id: Date.now(),
+                bank,
+                amount: parseFloat(amount),
+                rate: parseFloat(rate),
+                months: parseInt(months),
+                expiryDate
+            };
+            deposits.push(newDeposit);
+        }
 
-        deposits.push(newDeposit);
         saveToLocalStorage();
         renderStatus();
 
-        // Clear amount and rate fields
+        // Clear volatile fields
         document.getElementById('amount').value = '';
         document.getElementById('rate').value = '';
     }
 
+    // Triggers Edit Mode
+    function startEdit(id) {
+        const item = deposits.find(d => d.id === id);
+        if (!item) return;
+
+        editingId = id;
+
+        // Populate fields
+        document.getElementById('bank').value = item.bank;
+        document.getElementById('amount').value = item.amount;
+        document.getElementById('months').value = item.months;
+        document.getElementById('rate').value = item.rate;
+        document.getElementById('expiryDate').value = item.expiryDate;
+
+        // Update Form UI styles
+        const formCard = document.getElementById('formCard');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        formCard.classList.add('editing-mode');
+        submitBtn.innerText = "Update Deposit Record";
+        submitBtn.classList.add('update-style');
+        cancelBtn.style.display = "block";
+
+        // Scroll back to the top form cleanly
+        formCard.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Exits Edit Mode and restores defaults
+    function exitEditMode() {
+        editingId = null;
+
+        // Reset UI components
+        const formCard = document.getElementById('formCard');
+        const submitBtn = document.getElementById('submitBtn');
+        const cancelBtn = document.getElementById('cancelBtn');
+
+        formCard.classList.remove('editing-mode');
+        submitBtn.innerText = "Add Deposit Record";
+        submitBtn.classList.remove('update-style');
+        cancelBtn.style.display = "none";
+
+        // Reset form variables
+        document.getElementById('amount').value = '';
+        document.getElementById('rate').value = '';
+        
+        // Reset date configuration to standard parameters
+        const today = new Date();
+        const selectedMonths = parseInt(document.getElementById('months').value);
+        today.setMonth(today.getMonth() + selectedMonths);
+        document.getElementById('expiryDate').value = today.toISOString().split('T')[0];
+        
+        renderStatus();
+    }
+
     function deleteDeposit(id) {
+        // If we are currently editing the item being deleted, cancel edit mode first
+        if (editingId === id) {
+            exitEditMode();
+        }
+
         if(confirm('Are you sure you want to delete this record?')) {
             deposits = deposits.filter(item => item.id !== id);
             saveToLocalStorage();
