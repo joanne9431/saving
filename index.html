@@ -11,7 +11,7 @@
             --warning-color: #f97316;       /* 溫和暖橙 */
             --bg-color: #f8fafc;            /* 極透白底色 */
             --card-bg: #ffffff;
-            --text-main: #334155;           /* 深灰（比純黑更溫和） */
+            --text-main: #334155;           /* 深灰 */
             --text-muted: #94a3b8;          /* 淡灰 */
             --expired-color: #cbd5e1;       /* 已到期淺灰 */
         }
@@ -30,7 +30,7 @@
             margin: 0 auto;
         }
 
-        /* Dashboard Overview - 清新漸變色 */
+        /* Dashboard Overview - 修改為單欄、分兩行顯示 */
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
@@ -39,12 +39,22 @@
             box-shadow: 0 4px 20px rgba(224, 231, 255, 0.5);
             margin-bottom: 35px;
             border: 1px solid rgba(255, 255, 255, 0.6);
+            
+            /* 改為 Flex 直向排列 */
+            display: flex;
+            flex-direction: column;
+            gap: 25px; 
         }
 
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+        /* 每一行的獨立樣式 */
+        .dash-row {
+            padding-bottom: 5px;
+        }
+
+        /* 在兩行之間加一條淡淡的分隔線 */
+        .dash-row:first-child {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+            padding-bottom: 20px;
         }
 
         .dash-label {
@@ -52,18 +62,19 @@
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .dash-value {
-            font-size: 2rem;
+            font-size: 2.4rem; /* 加大數字，更有儀表板的視覺震撼感 */
             font-weight: 600;
             letter-spacing: -0.5px;
             transition: filter 0.3s ease;
             color: #0f172a;
+            margin-top: 5px;
         }
 
         .blur-effect {
@@ -214,7 +225,7 @@
             align-items: center;
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
-            border-left: none; /* 由左邊條代替 */
+            border-left: none;
             position: relative;
         }
         
@@ -298,7 +309,7 @@
             color: var(--primary-color);
         }
 
-        /* Expired Item Styling (清新淡出) */
+        /* Expired Item Styling */
         .deposit-card.expired {
             background-color: #f8fafc;
             color: var(--expired-color);
@@ -330,21 +341,20 @@
 <div class="container">
 
     <div class="dashboard">
-        <div class="dashboard-grid">
-            <div class="dash-item">
-                <div class="dash-label">
-                    Total Principal
-                    <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
-                </div>
-                <div id="totalDeposit" class="dash-value">$0.00</div>
+        <div class="dash-row">
+            <div class="dash-label">
+                Total Principal
+                <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
             </div>
-            <div class="dash-item">
-                <div class="dash-label">
-                    Total Term Interest
-                    <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
-                </div>
-                <div id="totalInterest" class="dash-value">$0.00</div>
+            <div id="totalDeposit" class="dash-value">$0.00</div>
+        </div>
+        
+        <div class="dash-row">
+            <div class="dash-label">
+                Total Term Interest
+                <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
             </div>
+            <div id="totalInterest" class="dash-value">$0.00</div>
         </div>
     </div>
 
@@ -425,6 +435,7 @@
         renderStatus();
     }
 
+    // 支援單獨一行手動隱藏
     function toggleVisibility(id) {
         document.getElementById(id).classList.toggle('blur-effect');
     }
@@ -453,7 +464,6 @@
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-        // Sort items: Active on top, Matured on bottom
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
             const isBExpired = new Date(b.expiryDate) < today;
