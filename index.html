@@ -439,31 +439,30 @@
         resetFormDates();
     };
 
-    // 安全的安全月份加減函數：完全避免大小月溢出及多次點擊造成的日期偏差Bug
+    // 修正後的日期計算：完美解決對日的一天誤差
     function calculateShiftedDate(baseDateStr, monthsToShift, isForward = true) {
         let parts = baseDateStr.split('-');
         let year = parseInt(parts[0], 10);
-        let month = parseInt(parts[1], 10) - 1; // 轉為 0-11
+        let month = parseInt(parts[1], 10) - 1; 
         let day = parseInt(parts[2], 10);
 
-        // 建立一個安全的暫時日期（先把日設為1，避免大月跳小月溢出）
         let tempDate = new Date(year, month, 1);
+        
         if (isForward) {
+            // 從 Start Date 推算 Maturity Date
             tempDate.setMonth(tempDate.getMonth() + monthsToShift);
+            let maxDays = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate();
+            let finalDay = Math.min(day, maxDays);
+            let finalDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), finalDay);
+            return finalDate.toISOString().split('T')[0];
         } else {
+            // 從 Maturity Date 倒退回 Start Date（精準扣除1天誤差對日）
             tempDate.setMonth(tempDate.getMonth() - monthsToShift);
+            let maxDays = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate();
+            let finalDay = Math.min(day, maxDays);
+            let finalDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), finalDay);
+            return finalDate.toISOString().split('T')[0];
         }
-
-        // 檢查目標月份的最大天數，防止例如 31 日硬塞進 30 日的月份
-        let targetYear = tempDate.getFullYear();
-        let targetMonth = tempDate.getMonth();
-        let maxDaysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
-        
-        let finalDay = Math.min(day, maxDaysInTargetMonth);
-        
-        // 輸出精確的 YYYY-MM-DD
-        let finalDate = new Date(targetYear, targetMonth, finalDay);
-        return finalDate.toISOString().split('T')[0];
     }
 
     // 日期聯動核心控制
@@ -473,7 +472,6 @@
         const selectedMonths = parseInt(monthsSelect.value);
 
         if (editingId !== null) {
-            // 【編輯模式】
             if (triggerType === 'term') {
                 if (currentCalculatedStartDate) {
                     expiryInput.value = calculateShiftedDate(currentCalculatedStartDate, selectedMonths, true);
@@ -484,7 +482,6 @@
                 }
             }
         } else {
-            // 【新增模式】
             if (triggerType === 'term') {
                 if (!userHasManuallyChangedMaturity) {
                     const today = new Date();
@@ -716,6 +713,7 @@
         }
     }
 
+    // 匯出報表邏輯
     function exportToExcelXLSX() {
         if (deposits.length === 0) return alert("There is no data to export yet!");
         if (typeof XLSX === 'undefined') return alert("SheetJS library not loaded.");
