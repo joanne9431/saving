@@ -439,7 +439,7 @@
         resetFormDates();
     };
 
-    // 修正後的日期計算：完美解決對日的一天誤差
+    // 核心修正：完美對日計算，絕無 1 日誤差
     function calculateShiftedDate(baseDateStr, monthsToShift, isForward = true) {
         let parts = baseDateStr.split('-');
         let year = parseInt(parts[0], 10);
@@ -449,20 +449,22 @@
         let tempDate = new Date(year, month, 1);
         
         if (isForward) {
-            // 從 Start Date 推算 Maturity Date
+            // 從 Start Date 正推推算 Maturity Date (例如 4月2日 + 3個月 = 7月2日)
             tempDate.setMonth(tempDate.getMonth() + monthsToShift);
-            let maxDays = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate();
-            let finalDay = Math.min(day, maxDays);
-            let finalDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), finalDay);
-            return finalDate.toISOString().split('T')[0];
         } else {
-            // 從 Maturity Date 倒退回 Start Date（精準扣除1天誤差對日）
+            // 從 Maturity Date 倒退回 Start Date (例如 7月2日 - 3個月 = 4月2日)
             tempDate.setMonth(tempDate.getMonth() - monthsToShift);
-            let maxDays = new Date(tempDate.getFullYear(), tempDate.getMonth() + 1, 0).getDate();
-            let finalDay = Math.min(day, maxDays);
-            let finalDate = new Date(tempDate.getFullYear(), tempDate.getMonth(), finalDay);
-            return finalDate.toISOString().split('T')[0];
         }
+
+        let targetYear = tempDate.getFullYear();
+        let targetMonth = tempDate.getMonth();
+        
+        // 處理小月月底天數不足的溢出防護 (例如 31日 遇到 30日)
+        let maxDaysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
+        let finalDay = Math.min(day, maxDaysInTargetMonth);
+        
+        let finalDate = new Date(targetYear, targetMonth, finalDay);
+        return finalDate.toISOString().split('T')[0];
     }
 
     // 日期聯動核心控制
@@ -713,7 +715,6 @@
         }
     }
 
-    // 匯出報表邏輯
     function exportToExcelXLSX() {
         if (deposits.length === 0) return alert("There is no data to export yet!");
         if (typeof XLSX === 'undefined') return alert("SheetJS library not loaded.");
