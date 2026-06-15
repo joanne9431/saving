@@ -24,7 +24,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -90,7 +90,7 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 12px;
             margin-bottom: 15px;
         }
@@ -102,6 +102,7 @@
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 0.95rem;
+            background-color: #fff;
         }
 
         button.add-btn {
@@ -235,7 +236,7 @@
             </div>
             <div class="dash-item">
                 <div class="dash-label">
-                    Est. Annual Interest Earned
+                    Total Expected Interest (Active)
                     <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
                 </div>
                 <div id="totalInterest" class="dash-value">$0.00</div>
@@ -261,6 +262,16 @@
                 <input type="number" id="amount" placeholder="e.g., 100000">
             </div>
             <div>
+                <label style="font-size:0.8rem; color:var(--text-muted)">Deposit Term</label>
+                <select id="months" onchange="updateMaturityDate()">
+                    <option value="1">1 Month</option>
+                    <option value="2">2 Months</option>
+                    <option value="3">3 Months</option>
+                    <option value="6">6 Months</option>
+                    <option value="12" selected>12 Months</option>
+                </select>
+            </div>
+            <div>
                 <label style="font-size:0.8rem; color:var(--text-muted)">Interest Rate (% p.a.)</label>
                 <input type="number" id="rate" placeholder="e.g., 3.8" step="0.01">
             </div>
@@ -279,53 +290,64 @@
 </div>
 
 <script>
-    // Load from local storage, fallback to placeholder data if empty
-    let deposits = JSON.parse(localStorage.getItem('my_deposits'));
+    // Local storage sync setup
+    let deposits = JSON.parse(localStorage.getItem('my_term_deposits'));
     
+    // Sample placeholder data configured with term values
     if (!deposits || deposits.length === 0) {
         deposits = [
-            { id: 1, bank: "HSBC", amount: 200000, rate: 4.1, expiryDate: "2026-12-31" },
-            { id: 2, bank: "ZA Bank", amount: 50000, rate: 3.8, expiryDate: "2026-10-15" }
+            { id: 1, bank: "HSBC", amount: 200000, rate: 4.1, months: 6, expiryDate: "2026-12-31" },
+            { id: 2, bank: "ZA Bank", amount: 50000, rate: 3.8, months: 3, expiryDate: "2026-10-15" }
         ];
         saveToLocalStorage();
     }
 
     window.onload = function() {
-        // Default form date picker to today
+        updateMaturityDate(); // Initialize default date picker based on selected term
+    };
+
+    // Automatically calculate maturity date based on current date + selected months
+    function updateMaturityDate() {
         const today = new Date();
+        const selectedMonths = parseInt(document.getElementById('months').value);
+        today.setMonth(today.getMonth() + selectedMonths);
+        
         document.getElementById('expiryDate').value = today.toISOString().split('T')[0];
         renderStatus();
-    };
+    }
 
     function toggleVisibility(id) {
         document.getElementById(id).classList.toggle('blur-effect');
     }
 
     function saveToLocalStorage() {
-        localStorage.setItem('my_deposits', JSON.stringify(deposits));
+        localStorage.setItem('my_term_deposits', JSON.stringify(deposits));
     }
 
+    // Main calculation and rendering logic
     function renderStatus() {
         const listContainer = document.getElementById('depositList');
         const today = new Date();
-        today.setHours(0,0,0,0); // Reset time for accurate date comparison
+        today.setHours(0,0,0,0);
 
         let totalDeposit = 0;
         let totalInterest = 0;
 
-        // Calculate active totals
+        // Calculate actual gains for active records
         deposits.forEach(item => {
             const expiry = new Date(item.expiryDate);
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
-                totalInterest += parseFloat(item.amount) * (parseFloat(item.rate) / 100);
+                // Pro-rated interest calculation based on the specific deposit term length
+                const itemInterest = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
+                totalInterest += itemInterest;
             }
         });
 
-        document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-        document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-        // Sorting: Active deposits on top (nearest to farthest maturity date), Expired items at the bottom
+        // Sort items: Active on top (ascending by date), Matured items forced to the bottom
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
             const isBExpired = new Date(b.expiryDate) < today;
@@ -343,14 +365,17 @@
             const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
             let countdownText = isExpired ? "Matured" : (daysLeft === 0 ? "Matures Today!" : `${daysLeft} days left`);
+            
+            // Calculate specific item payout interest
+            const actualItemInterest = item.amount * (item.rate / 100) * (item.months / 12);
 
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
-                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}%</div>
-                    <div class="card-sub">Maturity Date: ${item.expiryDate} | Est. Yearly Interest: $${(item.amount * item.rate / 100).toFixed(2)}</div>
+                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
+                    <div class="card-sub">Maturity: ${item.expiryDate} | Net Term Interest: $${actualItemInterest.toFixed(2)}</div>
                 </div>
                 <div class="card-right">
                     <span class="countdown">${countdownText}</span>
@@ -364,6 +389,7 @@
     function addDeposit() {
         const bank = document.getElementById('bank').value;
         const amount = document.getElementById('amount').value;
+        const months = document.getElementById('months').value;
         const rate = document.getElementById('rate').value;
         const expiryDate = document.getElementById('expiryDate').value;
         const errorMsg = document.getElementById('errorMsg');
@@ -380,6 +406,7 @@
             bank: bank,
             amount: parseFloat(amount),
             rate: parseFloat(rate),
+            months: parseInt(months),
             expiryDate: expiryDate
         };
 
@@ -387,7 +414,7 @@
         saveToLocalStorage();
         renderStatus();
 
-        // Clear input inputs
+        // Clear amount and rate fields
         document.getElementById('amount').value = '';
         document.getElementById('rate').value = '';
     }
