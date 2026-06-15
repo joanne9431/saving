@@ -74,7 +74,6 @@
             margin-top: 2px;
         }
 
-        /* 模糊隱藏效果 */
         .blur-effect {
             filter: blur(8px);
             user-select: none;
@@ -212,18 +211,17 @@
             gap: 12px;
         }
 
+        /* 【修改】重新定義卡片內排版，改為左右兩側 Flex 對齊 */
         .deposit-card {
             background: var(--card-bg);
-            border-left: 4px solid var(--primary-color);
             padding: 20px;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: center; /* 讓左右兩側內容垂直置中 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
-            border-left: none;
             position: relative;
         }
         
@@ -238,10 +236,20 @@
             border-radius: 12px 0 0 12px;
         }
 
+        /* 左側主要資訊區（佔滿剩餘寬度） */
         .card-main {
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        /* 【新樣式】卡片頂部行：包含銀行標籤和倒數日期 */
+        .card-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-right: 25px; /* 與右側按鈕留出適當空間 */
         }
 
         .bank-tag {
@@ -254,34 +262,29 @@
             width: fit-content;
         }
 
+        .countdown {
+            font-weight: 600;
+            color: #b91c1c;
+            font-size: 0.85rem;
+        }
+
         .card-details {
             font-size: 1.15rem;
             font-weight: 600;
             color: #1e293b;
         }
 
-        .card-sub {
+        /* 【新樣式】分上下兩行顯示的副資訊樣式 */
+        .card-sub-line {
             font-size: 0.85rem;
             color: #64748b;
         }
 
-        .card-right {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .countdown {
-            font-weight: 600;
-            color: #b91c1c;
-            font-size: 0.9rem;
-        }
-
+        /* 右側按鈕群組 */
         .action-group {
             display: flex;
             gap: 12px;
-            justify-content: flex-end;
+            align-items: center;
         }
 
         .action-btn {
@@ -291,7 +294,7 @@
             cursor: pointer;
             font-size: 0.8rem;
             text-decoration: none;
-            padding: 0;
+            padding: 5px;
             transition: color 0.2s;
         }
 
@@ -444,7 +447,6 @@
         document.getElementById(id).classList.toggle('blur-effect');
     }
 
-    // 【修改點】移除每次刷新重新蓋掉 blur 狀態的邏輯，改為只更新純文字內容
     function saveToLocalStorage() {
         localStorage.setItem('my_term_deposits', JSON.stringify(deposits));
     }
@@ -467,7 +469,6 @@
             totalInterest += itemInterest;
         });
 
-        // 僅更新文字，不改動它的 classList，這樣就能完美保留原本手動或預設的隱藏狀態
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
@@ -492,18 +493,21 @@
 
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
+            
+            /* 【核心修改點】重組卡片內部 HTML 結構 */
             card.innerHTML = `
                 <div class="card-main">
-                    <span class="bank-tag">${item.bank}</span>
-                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
-                    <div class="card-sub">Maturity: ${item.expiryDate} | Net Interest: $${actualItemInterest.toFixed(2)}</div>
-                </div>
-                <div class="card-right">
-                    <span class="countdown">${countdownText}</span>
-                    <div class="action-group">
-                        <button class="action-btn edit-btn-text" onclick="startEdit(${item.id})">Edit</button>
-                        <button class="action-btn" onclick="deleteDeposit(${item.id})">Delete</button>
+                    <div class="card-top-row">
+                        <span class="bank-tag">${item.bank}</span>
+                        <span class="countdown">${countdownText}</span>
                     </div>
+                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
+                    <div class="card-sub-line">📅 Maturity: ${item.expiryDate}</div>
+                    <div class="card-sub-line">💰 Net Interest: $${actualItemInterest.toFixed(2)}</div>
+                </div>
+                <div class="action-group">
+                    <button class="action-btn edit-btn-text" onclick="startEdit(${item.id})">Edit</button>
+                    <button class="action-btn" onclick="deleteDeposit(${item.id})">Delete</button>
                 </div>
             `;
             listContainer.appendChild(card);
