@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fixed Deposit Tracker</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
     <style>
         :root {
             --primary-color: #4f46e5;       
@@ -21,12 +24,12 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px 15px; /* 【緊湊】縮減網頁四周留白 */
+            padding: 20px 15px; 
             -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 800px; /* 【緊湊】稍微縮減最大寬度 */
+            max-width: 800px; 
             margin: 0 auto;
         }
 
@@ -34,15 +37,15 @@
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 14px 20px; /* 【緊湊】縮減儀表板內邊距 */
+            padding: 14px 20px; 
             border-radius: 14px;
             box-shadow: 0 4px 15px rgba(224, 231, 255, 0.4);
-            margin-bottom: 18px; /* 【緊湊】縮減下方間距 */
+            margin-bottom: 18px; 
             border: 1px solid rgba(255, 255, 255, 0.6);
             
             display: flex;
             flex-direction: column;
-            gap: 8px; /* 【緊湊】縮減行距 */
+            gap: 8px; 
         }
 
         .dash-row {
@@ -66,7 +69,7 @@
         }
 
         .dash-value {
-            font-size: 1.4rem; /* 【緊湊】微調金額字體大小 */
+            font-size: 1.4rem; 
             font-weight: 600;
             letter-spacing: -0.3px;
             transition: filter 0.3s ease;
@@ -97,10 +100,10 @@
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            padding: 16px 20px; /* 【緊湊】縮減表單內邊距 */
+            padding: 16px 20px; 
             border-radius: 14px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
-            margin-bottom: 22px; /* 【緊湊】縮減下方間距 */
+            margin-bottom: 22px; 
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
@@ -112,8 +115,8 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); /* 【緊湊】微調最小寬度 */
-            gap: 12px; /* 【緊湊】縮減輸入框之間的間隙 */
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+            gap: 12px; 
             margin-bottom: 14px;
         }
 
@@ -127,7 +130,7 @@
 
         input, select {
             width: 100%;
-            padding: 8px 12px; /* 【緊湊】縮減輸入框內邊距，降低高度 */
+            padding: 8px 12px; 
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             box-sizing: border-box;
@@ -153,7 +156,7 @@
             background-color: var(--success-color);
             color: white;
             border: none;
-            padding: 9px; /* 【緊湊】降低按鈕高度 */
+            padding: 9px; 
             border-radius: 6px;
             font-size: 0.9rem;
             font-weight: 500;
@@ -187,7 +190,7 @@
         /* Deposit List */
         .list-title {
             font-size: 1rem;
-            margin-bottom: 10px; /* 【緊湊】縮減標題下方空間 */
+            margin-bottom: 10px; 
             font-weight: 600;
             color: #475569;
             letter-spacing: 0.5px;
@@ -196,12 +199,13 @@
         #depositList {
             display: flex;
             flex-direction: column;
-            gap: 8px; /* 【緊湊】讓列表卡片排得更緊密 */
+            gap: 8px; 
+            margin-bottom: 15px; /* 為下方的 Export 按鈕留空間 */
         }
 
         .deposit-card {
             background: var(--card-bg);
-            padding: 12px 18px; /* 【緊湊】縮減定存卡片的上下內邊距 */
+            padding: 12px 18px; 
             border-radius: 10px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
             display: flex;
@@ -216,7 +220,7 @@
         .card-main {
             display: flex;
             flex-direction: column;
-            gap: 4px; /* 【緊湊】縮減文字行與行之間的間距 */
+            gap: 4px; 
             flex-grow: 1;
         }
 
@@ -232,14 +236,14 @@
         }
 
         .card-details {
-            font-size: 1.05rem; /* 【緊湊】微調卡片內主標題大小 */
+            font-size: 1.05rem; 
             font-weight: 600;
             color: #1e293b;
         }
 
         /* 分行顯示的副資訊樣式 */
         .card-sub-line {
-            font-size: 0.8rem; /* 【緊湊】微調字體 */
+            font-size: 0.8rem; 
             color: #64748b;
             line-height: 1.3;
         }
@@ -253,7 +257,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end; 
-            gap: 12px; /* 【緊湊】縮減倒數與按鈕之間的垂直間距 */
+            gap: 12px; 
             flex-shrink: 0;
             margin-left: 15px;
             min-width: 100px; 
@@ -295,6 +299,27 @@
 
         .action-btn.edit-btn-text:hover {
             color: var(--primary-color);
+        }
+
+        /* 【新增樣式】符合原本配色風格的精簡導出按鈕 */
+        .btn-backup { 
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            background-color: #fef3c7; /* 輕柔溫和的奶黃暖橙底色 */
+            color: #92400e; 
+            transition: all 0.2s;
+        }
+        .btn-backup:hover { 
+            background-color: #fde68a; 
+        }
+        .btn-backup:active { 
+            transform: scale(0.99); 
+            opacity: 0.9;
         }
 
         /* Expired Item Styling */
@@ -390,12 +415,17 @@
     <div class="list-title">Active & Matured Records</div>
     <div id="depositList"></div>
 
+    <div style="padding: 0 2px;">
+        <button class="btn-backup" onclick="exportToExcelXLSX()">Export Excel File</button>
+    </div>
+
 </div>
 
 <script>
     let deposits = JSON.parse(localStorage.getItem('my_term_deposits'));
     let editingId = null;
     let userHasManuallyChangedDate = false;
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     
     if (!deposits || deposits.length === 0) {
         deposits = [
@@ -477,7 +507,6 @@
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             
-            /* 【緊湊優化】移除 Emoji，改用簡潔的 strong 標籤分類，視覺上更加乾淨 */
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
@@ -497,7 +526,6 @@
         });
     }
 
-    // 後續邏輯保持不變
     function handleFormSubmit() {
         const bank = document.getElementById('bank').value;
         const amount = document.getElementById('amount').value;
@@ -599,6 +627,136 @@
             saveToLocalStorage();
             renderStatus();
         }
+    }
+
+    /* 【新增核心代碼】完完整整地對齊 Wallet.html 的 Excel 多年份篩選兼排版匯出邏輯 */
+    function exportToExcelXLSX() {
+        if (deposits.length === 0) return alert("There is no data to export yet!");
+        if (typeof XLSX === 'undefined') return alert("SheetJS library not loaded yet, please check internet connection.");
+
+        // 1. 分析數據中有哪些年份
+        let availableYears = new Set();
+        deposits.forEach(d => {
+            if (d.expiryDate) {
+                let year = d.expiryDate.split('-')[0];
+                availableYears.add(year);
+            }
+        });
+        let sortedYears = Array.from(availableYears).sort((a, b) => b - a); 
+
+        const sysDate = new Date();
+        const currentSystemYear = String(sysDate.getFullYear());
+        let selectedYear = currentSystemYear;
+
+        // 2. 多年份時跳出選擇，如同 Wallet.html 邏輯
+        if (sortedYears.length > 1) {
+            let yearPrompt = prompt(
+                `Detected data across multiple years.\nAvailable years: ${sortedYears.join(', ')}\n\nPlease enter the year you want to export:`, 
+                currentSystemYear
+            );
+            
+            if (yearPrompt === null) return; 
+            yearPrompt = yearPrompt.trim();
+            
+            if (!sortedYears.includes(yearPrompt)) {
+                return alert(`Invalid year choice! Please run export again and type one of: ${sortedYears.join(', ')}`);
+            }
+            selectedYear = yearPrompt;
+        } else if (sortedYears.length === 1) {
+            selectedYear = sortedYears[0];
+        }
+
+        // 3. 篩選出選定年份的定存紀錄
+        let filteredDeposits = deposits.filter(d => d.expiryDate && d.expiryDate.startsWith(selectedYear));
+        
+        if (filteredDeposits.length === 0) {
+            return alert(`No data found for the year ${selectedYear}.`);
+        }
+
+        // 4. 按到期月份分組
+        let monthlyGroups = {};
+        let allMonthsChronological = [];
+        let annualTotalPrincipal = 0;
+        let annualTotalInterest = 0;
+
+        filteredDeposits.forEach(d => {
+            let yearMonth = d.expiryDate.substring(0, 7); // 取得 YYYY-MM
+            if (!monthlyGroups[yearMonth]) {
+                monthlyGroups[yearMonth] = [];
+                allMonthsChronological.push(yearMonth);
+            }
+            monthlyGroups[yearMonth].push(d);
+            annualTotalPrincipal += d.amount;
+            annualTotalInterest += d.amount * (d.rate / 100) * (d.months / 12);
+        });
+
+        // 按月份排序（新排到舊）
+        let sheetsOrder = [...allMonthsChronological].sort((a, b) => b.localeCompare(a));
+
+        let wb = XLSX.utils.book_new();
+
+        // 5. 建立分頁 Sheets
+        sheetsOrder.forEach(currentMonthKey => {
+            let monthRecords = monthlyGroups[currentMonthKey];
+            monthRecords.sort((a, b) => a.expiryDate.localeCompare(b.expiryDate));
+
+            let sheetRows = [
+                ["Maturity Date", "Bank Name", "Principal Amount", "Interest Rate", "Term", "Net Interest"]
+            ];
+
+            let monthTotalPrincipal = 0;
+            let monthTotalInterest = 0;
+
+            monthRecords.forEach(d => {
+                let actualInterest = d.amount * (d.rate / 100) * (d.months / 12);
+                monthTotalPrincipal += d.amount;
+                monthTotalInterest += actualInterest;
+
+                sheetRows.push([
+                    d.expiryDate,
+                    d.bank,
+                    `$${d.amount.toLocaleString()}`,
+                    `${d.rate}%`,
+                    `${d.months} Months`,
+                    `$${actualInterest.toFixed(2)}`
+                ]);
+            });
+
+            // 加入月度結算
+            let parts = currentMonthKey.split('-');
+            let EnglishMonthLabel = monthNames[parseInt(parts[1], 10) - 1] || "Month";
+
+            sheetRows.push(["", "", "", "", "", ""]); // 空行隔開
+            sheetRows.push([
+                `${EnglishMonthLabel} Summary`, 
+                "", 
+                `Total: $${monthTotalPrincipal.toLocaleString()}`, 
+                "", 
+                "", 
+                `Total Interest: $${monthTotalInterest.toFixed(2)}`
+            ]);
+
+            // 如果是該年最新的月份分頁，順便在下方附帶全年度加總報告
+            if (currentMonthKey === sheetsOrder[0]) {
+                sheetRows.push(["", "", "", "", "", ""]);
+                sheetRows.push([
+                    `${selectedYear} Annual Summary`, 
+                    "", 
+                    `Total Principal: $${annualTotalPrincipal.toLocaleString()}`, 
+                    "", 
+                    "", 
+                    `Total Annual Interest: $${annualTotalInterest.toFixed(2)}`
+                ]);
+            }
+
+            let ws = XLSX.utils.aoa_to_sheet(sheetRows);
+            // 微調欄寬使其更美觀
+            ws['!cols'] = [{ wch: 15 }, { wch: 18 }, { wch: 20 }, { wch: 12 }, { wch: 12 }, { wch: 18 }]; 
+            XLSX.utils.book_append_sheet(wb, ws, currentMonthKey);
+        });
+
+        // 6. 下載輸出
+        XLSX.writeFile(wb, `Deposit_Report_${selectedYear}_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 </script>
 
