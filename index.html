@@ -24,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px 15px; 
+            padding: 10px 12px; /* 壓縮網頁四周留白 */
             -webkit-font-smoothing: antialiased;
         }
 
@@ -37,15 +37,14 @@
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 14px 20px; 
-            border-radius: 14px;
-            box-shadow: 0 4px 15px rgba(224, 231, 255, 0.4);
-            margin-bottom: 18px; 
+            padding: 10px 16px; /* 壓縮內襯留白 */
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(224, 231, 255, 0.3);
+            margin-bottom: 12px; /* 減少與下方表單的間距 */
             border: 1px solid rgba(255, 255, 255, 0.6);
-            
             display: flex;
             flex-direction: column;
-            gap: 8px; 
+            gap: 4px; 
         }
 
         .dash-row {
@@ -53,39 +52,36 @@
         }
 
         .dash-row:first-child {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+            padding-bottom: 4px;
         }
 
         .dash-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        /* 數字外層容器 */
         .dash-value-wrapper {
             position: relative;
             display: inline-block;
             cursor: pointer;
-            min-width: 140px; /* 固定最小寬度，防止切換時伸縮抖動 */
-            margin-top: 2px;
+            min-width: 130px; 
         }
 
         .dash-value {
-            font-size: 1.4rem; 
+            font-size: 1.25rem; /* 微調數字大小以節省空間 */
             font-weight: 600;
             letter-spacing: -0.3px;
             color: #0f172a;
             transition: opacity 0.2s ease;
         }
 
-        /* 全新質感的隱藏遮罩層 */
         .secure-mask {
             position: absolute;
             top: 2px;
@@ -94,25 +90,16 @@
             height: calc(100% - 4px);
             background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
             background-size: 200% 100%;
-            border-radius: 6px;
+            border-radius: 4px;
             animation: shimmer 1.6s infinite linear;
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.2s ease;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        /* 啟用隱藏時的狀態 */
-        .is-hidden .dash-value {
-            opacity: 0; /* 讓真實數字完全透明，防止溢出 */
-        }
+        .is-hidden .dash-value { opacity: 0; }
+        .is-hidden .secure-mask { opacity: 1; pointer-events: auto; }
 
-        .is-hidden .secure-mask {
-            opacity: 1; /* 顯現遮罩色塊 */
-            pointer-events: auto;
-        }
-
-        /* 流光微動效 */
         @keyframes shimmer {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
@@ -121,44 +108,43 @@
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            padding: 16px 20px; 
-            border-radius: 14px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
-            margin-bottom: 22px; 
+            padding: 12px 16px; /* 減少表單留白 */
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+            margin-bottom: 12px; /* 減少下方間距 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
 
         .form-card.editing-mode {
             border-color: var(--primary-color);
-            box-shadow: 0 0 15px rgba(79, 70, 229, 0.08);
+            box-shadow: 0 0 10px rgba(79, 70, 229, 0.08);
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
-            gap: 12px; 
-            margin-bottom: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); /* 緊湊格點 */
+            gap: 8px; /* 減少輸入框之間的距離 */
+            margin-bottom: 10px;
         }
 
         label {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         input, select {
             width: 100%;
-            padding: 8px 12px; 
+            padding: 6px 10px; /* 壓縮輸入框高度 */
             border: 1px solid #e2e8f0;
-            border-radius: 6px;
+            border-radius: 5px;
             box-sizing: border-box;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             background-color: #f8fafc;
             color: var(--text-main);
-            transition: all 0.2s;
         }
 
         input:focus, select:focus {
@@ -169,7 +155,7 @@
 
         .btn-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         button.add-btn {
@@ -177,125 +163,138 @@
             background-color: var(--success-color);
             color: white;
             border: none;
-            padding: 9px; 
-            border-radius: 6px;
-            font-size: 0.9rem;
+            padding: 8px; 
+            border-radius: 5px;
+            font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
         }
 
-        button.add-btn.update-style {
-            background-color: var(--primary-color);
-        }
+        button.add-btn.update-style { background-color: var(--primary-color); }
 
         button.cancel-btn {
             flex: 1;
             background-color: #e2e8f0;
             color: #475569;
             border: none;
-            padding: 9px;
-            border-radius: 6px;
-            font-size: 0.9rem;
+            padding: 8px;
+            border-radius: 5px;
+            font-size: 0.85rem;
             cursor: pointer;
             display: none;
         }
 
         .error-msg {
             color: #ef4444;
-            font-size: 0.8rem;
-            margin-top: 8px;
+            font-size: 0.75rem;
+            margin-top: 6px;
             display: none;
             text-align: center;
         }
 
-        /* Deposit List */
+        /* List Title */
         .list-title {
-            font-size: 1rem;
-            margin-bottom: 10px; 
+            font-size: 0.9rem;
+            margin-bottom: 6px; 
             font-weight: 600;
             color: #475569;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
+        }
+
+        /* 1. Records 獨立滾軸區域 */
+        .records-scroll-container {
+            max-height: 380px; /* 限制最高高度，超過就滾動 */
+            overflow-y: auto;  /* 允許垂直方向滾動 */
+            padding-right: 4px; /* 幫滾軸預留一點點右邊距 */
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+
+        /* 美化獨立滾軸樣式 */
+        .records-scroll-container::-webkit-scrollbar {
+            width: 5px; /* 隱形極細滾軸 */
+        }
+        .records-scroll-container::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        .records-scroll-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 10px;
+        }
+        .records-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
         }
 
         #depositList {
             display: flex;
             flex-direction: column;
-            gap: 8px; 
-            margin-bottom: 15px; 
+            gap: 6px; /* 縮減卡片與卡片之間的距離 */
         }
 
         .deposit-card {
             background: var(--card-bg);
-            padding: 12px 18px; 
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
+            padding: 10px 14px; /* 壓縮卡片內部留白 */
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
             display: flex;
             justify-content: space-between;
-            align-items: flex-start; 
+            align-items: center; /* 改為置中對齊，讓扁平卡片更整齊 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
             position: relative;
         }
 
-        /* 左側主要資訊區 */
         .card-main {
             display: flex;
             flex-direction: column;
-            gap: 4px; 
+            gap: 2px; /* 壓縮文字行距 */
             flex-grow: 1;
         }
 
         .bank-tag {
             background: #f0fdf4;
             color: #166534;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.65rem;
             font-weight: 600;
             width: fit-content;
-            margin-bottom: 1px;
         }
 
         .card-details {
-            font-size: 1.05rem; 
+            font-size: 0.95rem; /* 微調讓視覺更精緻 */
             font-weight: 600;
             color: #1e293b;
         }
 
-        /* 分行顯示的副資訊樣式 */
         .card-sub-line {
-            font-size: 0.8rem; 
+            font-size: 0.75rem; 
             color: #64748b;
-            line-height: 1.3;
+            line-height: 1.2;
         }
         
-        .card-sub-line strong {
-            color: #475569;
-        }
+        .card-sub-line strong { color: #475569; }
 
-        /* 右側資訊群組 */
         .card-right {
             display: flex;
             flex-direction: column;
             align-items: flex-end; 
-            gap: 12px; 
+            gap: 6px; /* 縮小右邊資訊間距 */
             flex-shrink: 0;
-            margin-left: 15px;
-            min-width: 100px; 
+            margin-left: 10px;
+            min-width: 90px; 
         }
 
         .countdown {
             font-weight: 600;
             color: #b91c1c;
-            font-size: 0.8rem;
-            text-align: right;
+            font-size: 0.75rem;
             white-space: nowrap; 
         }
 
-        /* 按鈕群組 */
         .action-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
@@ -304,66 +303,36 @@
             border: none;
             color: #94a3b8;
             cursor: pointer;
-            font-size: 0.75rem;
-            text-decoration: none;
-            padding: 0px 2px;
-            transition: color 0.2s;
+            font-size: 0.7rem;
+            padding: 0px;
         }
 
-        .action-btn:hover {
-            color: #ef4444;
-        }
+        .action-btn:hover { color: #ef4444; }
+        .action-btn.edit-btn-text:hover { color: var(--primary-color); }
 
-        .action-btn.edit-btn-text {
-            color: #94a3b8;
-        }
-
-        .action-btn.edit-btn-text:hover {
-            color: var(--primary-color);
-        }
-
-        /* 導出按鈕樣式 */
+        /* 導出按鈕 */
         .btn-backup { 
             width: 100%;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
             border: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             background-color: #fef3c7; 
             color: #92400e; 
-            transition: all 0.2s;
         }
-        .btn-backup:hover { 
-            background-color: #fde68a; 
-        }
-        .btn-backup:active { 
-            transform: scale(0.99); 
-            opacity: 0.9;
-        }
+        .btn-backup:hover { background-color: #fde68a; }
 
         /* Expired Item Styling */
         .deposit-card.expired {
             background-color: #f8fafc;
-            color: var(--expired-color);
             opacity: 0.55;
             box-shadow: none;
         }
-        
-        .deposit-card.expired .bank-tag {
-            background: #f1f5f9;
-            color: #94a3b8;
-        }
-
-        .deposit-card.expired .card-details {
-            color: #94a3b8;
-            text-decoration: line-through;
-        }
-
-        .deposit-card.expired .countdown {
-            color: #94a3b8;
-        }
+        .deposit-card.expired .bank-tag { background: #f1f5f9; color: #94a3b8; }
+        .deposit-card.expired .card-details { color: #94a3b8; text-decoration: line-through; }
+        .deposit-card.expired .countdown { color: #94a3b8; }
     </style>
 </head>
 <body>
@@ -434,7 +403,10 @@
     </div>
 
     <div class="list-title">Active & Matured Records</div>
-    <div id="depositList"></div>
+    
+    <div class="records-scroll-container">
+        <div id="depositList"></div>
+    </div>
 
     <div style="padding: 0 2px;">
         <button class="btn-backup" onclick="exportToExcelXLSX()">Export Excel File</button>
@@ -536,7 +508,6 @@
         renderStatus();
     }
 
-    // 切換隱藏/顯示的邏輯修正為切換 class 
     function toggleVisibility(id) {
         document.getElementById(id).classList.toggle('is-hidden');
     }
@@ -610,8 +581,7 @@
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
                     <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
-                    <div class="card-sub-line"><strong>Start Date:</strong> ${item.startDate}</div>
-                    <div class="card-sub-line"><strong>Maturity:</strong> ${item.expiryDate}</div>
+                    <div class="card-sub-line"><strong>Start:</strong> ${item.startDate} | <strong>Mat:</strong> ${item.expiryDate}</div>
                     <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
                 </div>
                 <div class="card-right">
