@@ -112,7 +112,7 @@
             box-shadow: 0 0 10px rgba(79, 70, 229, 0.08);
         }
 
-        /* 【關鍵修正】前 4 個欄位完美平分第一行空間 */
+        /* 前 4 個欄位平分第一行空間 */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr); 
@@ -120,7 +120,7 @@
             margin-bottom: 10px;
         }
 
-        /* 【關鍵修正】讓到期日單獨獨佔一行 */
+        /* 到期日單獨獨佔一行 */
         .full-width-row {
             grid-column: span 4; 
             margin-top: 2px;
@@ -584,13 +584,16 @@
             let countdownText = isExpired ? "Matured" : (daysLeft === 0 ? "Matures Today!" : `${daysLeft} days left`);
             const actualItemInterest = item.amount * (item.rate / 100) * (item.months / 12);
 
+            // 【關鍵修正】將原本的數字M 改為單複數判斷的 Months 文字
+            const termText = item.months === 1 ? "1 Month" : `${item.months} Months`;
+
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
-                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
+                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${termText})</div>
                     <div class="card-sub-line"><strong>Start:</strong> ${item.startDate} | <strong>Mat:</strong> ${item.expiryDate}</div>
                     <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
                 </div>
