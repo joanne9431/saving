@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>定期存款計算與記錄器</title>
+    <title>定期存款計算與記錄器 (自動儲存版)</title>
     <style>
         :root {
             --primary-color: #2563eb;
@@ -28,7 +28,7 @@
             margin: 0 auto;
         }
 
-        /* 1. 總覽儀表板 */
+        /* 總覽儀表板 */
         .dashboard {
             background: linear-gradient(135deg, #1e3a8a, #2563eb);
             color: white;
@@ -36,18 +36,12 @@
             border-radius: 16px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             margin-bottom: 25px;
-            position: relative;
-            transition: all 0.3s ease;
         }
 
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-        }
-
-        .dash-item {
-            position: relative;
         }
 
         .dash-label {
@@ -66,7 +60,6 @@
             transition: filter 0.3s ease;
         }
 
-        /* 隱藏狀態的樣式 */
         .blur-effect {
             filter: blur(8px);
             user-select: none;
@@ -80,7 +73,6 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.8rem;
-            transition: background 0.2s;
         }
 
         .toggle-btn:hover {
@@ -122,11 +114,18 @@
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
         }
 
         button.add-btn:hover {
             background-color: #15803d;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 8px;
+            display: none;
+            text-align: center;
         }
 
         /* 定存列表 */
@@ -134,7 +133,6 @@
             font-size: 1.2rem;
             margin-bottom: 15px;
             font-weight: bold;
-            color: var(--text-main);
         }
 
         #depositList {
@@ -143,7 +141,6 @@
             gap: 15px;
         }
 
-        /* 定存卡片基本樣式 */
         .deposit-card {
             background: var(--card-bg);
             border-left: 5px solid var(--primary-color);
@@ -153,8 +150,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.4s ease;
-            position: relative;
+            transition: all 0.3s ease;
         }
 
         .card-main {
@@ -202,11 +198,10 @@
             color: #ef4444;
             cursor: pointer;
             font-size: 0.85rem;
-            padding: 0;
             text-decoration: underline;
         }
 
-        /* 5. 到期後的樣式 (劃線、變淺、置底由 JS 排序達成) */
+        /* 到期後樣式 */
         .deposit-card.expired {
             border-left-color: var(--expired-color);
             background-color: #f1f5f9;
@@ -240,7 +235,7 @@
             </div>
             <div class="dash-item">
                 <div class="dash-label">
-                    每年預估賺取總利息 (年收益)
+                    每年預估賺取總利息
                     <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">顯示/隱藏</button>
                 </div>
                 <div id="totalInterest" class="dash-value">$0.00</div>
@@ -262,11 +257,11 @@
             </div>
             <div>
                 <label style="font-size:0.8rem; color:var(--text-muted)">存款金額 ($)</label>
-                <input type="number" id="amount" placeholder="例如: 100000" min="0">
+                <input type="number" id="amount" placeholder="例如: 100000">
             </div>
             <div>
                 <label style="font-size:0.8rem; color:var(--text-muted)">年利率 (%)</label>
-                <input type="number" id="rate" placeholder="例如: 3.8" step="0.01" min="0">
+                <input type="number" id="rate" placeholder="例如: 3.8" step="0.01">
             </div>
             <div>
                 <label style="font-size:0.8rem; color:var(--text-muted)">到期日期</label>
@@ -274,68 +269,136 @@
             </div>
         </div>
         <button class="add-btn" onclick="addDeposit()">新增定期存款記錄</button>
+        <div id="errorMsg" class="error-msg">請填寫所有欄位，且金額與利率必須大於 0！</div>
     </div>
 
     <div class="list-title">定存明細記錄</div>
-    <div id="depositList">
-        </div>
+    <div id="depositList"></div>
 
 </div>
 
 <script>
-    // 初始化模擬數據 (初次打開網頁時會顯示，可自行刪除或透過介面刪除)
-    let deposits = [
-        { id: 1, bank: "匯豐銀行", amount: 200000, rate: 4.1, expiryDate: "2026-12-31" },
-        { id: 2, bank: "眾安銀行", amount: 50000, rate: 3.8, expiryDate: "2026-07-15" },
-        { id: 3, bank: "渣打銀行", amount: 150000, rate: 3.9, expiryDate: "2025-05-20" } // 這筆是過期的示範
-    ];
+    // 從瀏覽器快取載入資料，若無資料則給予預設示範資料
+    let deposits = JSON.parse(localStorage.getItem('my_deposits'));
+    
+    if (!deposits || deposits.length === 0) {
+        deposits = [
+            { id: 1, bank: "匯豐銀行", amount: 200000, rate: 4.1, expiryDate: "2026-12-31" },
+            { id: 2, bank: "眾安銀行", amount: 50000, rate: 3.8, expiryDate: "2026-10-15" }
+        ];
+        saveToLocalStorage();
+    }
 
-    // 網頁載入時初始化
     window.onload = function() {
-        // 設定新增表單的預設日期為今天之後一個月
+        // 預設日期設為今天
         const today = new Date();
-        today.setMonth(today.getMonth() + 1);
         document.getElementById('expiryDate').value = today.toISOString().split('T')[0];
-        
         renderStatus();
     };
 
-    // 1. 隱藏/顯示功能
     function toggleVisibility(id) {
-        const element = document.getElementById(id);
-        element.classList.toggle('blur-effect');
+        document.getElementById(id).classList.toggle('blur-effect');
     }
 
-    // 計算並渲染畫面
+    function saveToLocalStorage() {
+        localStorage.setItem('my_deposits', JSON.stringify(deposits));
+    }
+
     function renderStatus() {
         const listContainer = document.getElementById('depositList');
         const today = new Date();
-        today.setHours(0,0,0,0); // 只比較日期
+        today.setHours(0,0,0,0);
 
         let totalDeposit = 0;
         let totalInterest = 0;
 
-        // 計算未過期的總額與利息
+        // 計算未過期項目的總額
         deposits.forEach(item => {
             const expiry = new Date(item.expiryDate);
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
-                // 2. 每年定期所賺取的總額 (本金 * 利率%)
                 totalInterest += parseFloat(item.amount) * (parseFloat(item.rate) / 100);
             }
         });
 
-        // 更新上方看板
-        document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
 
-        // 5. 排序邏輯：未過期的排上面（按到期日由近到遠），已過期的排在最下方
+        // 排序：未過期在上（近到遠），已過期在下
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
             const isBExpired = new Date(b.expiryDate) < today;
+            if (isAExpired && !isBExpired) return 1;
+            if (!isAExpired && isBExpired) return -1;
+            return new Date(a.expiryDate) - new Date(b.expiryDate);
+        });
 
-            if (isAExpired && !isBExpired) return 1;  // a 過期，b 沒過期 -> a 往後排
-            if (!isAExpired && isBExpired) return -1; // a 沒過期，b 過期 -> a 往前排
-            
-            // 如果狀態相同，按日期排序
-            return new Date(a.expiryDate) - new Date(b
+        listContainer.innerHTML = '';
+
+        deposits.forEach(item => {
+            const expiry = new Date(item.expiryDate);
+            const isExpired = expiry < today;
+            const timeDiff = expiry.getTime() - today.getTime();
+            const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+            let countdownText = isExpired ? "已到期" : (daysLeft === 0 ? "今天到期！" : `還有 ${daysLeft} 天到期`);
+
+            const card = document.createElement('div');
+            card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
+            card.innerHTML = `
+                <div class="card-main">
+                    <span class="bank-tag">${item.bank}</span>
+                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}%</div>
+                    <div class="card-sub">到期日: ${item.expiryDate} | 年利息: $${(item.amount * item.rate / 100).toFixed(2)}</div>
+                </div>
+                <div class="card-right">
+                    <span class="countdown">${countdownText}</span>
+                    <button class="action-btn" onclick="deleteDeposit(${item.id})">刪除</button>
+                </div>
+            `;
+            listContainer.appendChild(card);
+        });
+    }
+
+    function addDeposit() {
+        const bank = document.getElementById('bank').value;
+        const amount = document.getElementById('amount').value;
+        const rate = document.getElementById('rate').value;
+        const expiryDate = document.getElementById('expiryDate').value;
+        const errorMsg = document.getElementById('errorMsg');
+
+        // 檢查防呆
+        if (!amount || !rate || !expiryDate || parseFloat(amount) <= 0 || parseFloat(rate) <= 0) {
+            errorMsg.style.display = 'block';
+            return;
+        }
+        errorMsg.style.display = 'none';
+
+        const newDeposit = {
+            id: Date.now(),
+            bank: bank,
+            amount: parseFloat(amount),
+            rate: parseFloat(rate),
+            expiryDate: expiryDate
+        };
+
+        deposits.push(newDeposit);
+        saveToLocalStorage(); // 儲存到瀏覽器
+        renderStatus();       // 刷新畫面
+
+        // 清空輸入欄
+        document.getElementById('amount').value = '';
+        document.getElementById('rate').value = '';
+    }
+
+    function deleteDeposit(id) {
+        if(confirm('確定要刪除此筆記錄嗎？')) {
+            deposits = deposits.filter(item => item.id !== id);
+            saveToLocalStorage();
+            renderStatus();
+        }
+    }
+</script>
+
+</body>
+</html>
