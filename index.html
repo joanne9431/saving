@@ -74,6 +74,7 @@
             margin-top: 2px;
         }
 
+        /* 模糊隱藏效果 */
         .blur-effect {
             filter: blur(8px);
             user-select: none;
@@ -340,14 +341,16 @@
     <div class="dashboard">
         <div class="dash-row">
             <div class="dash-label">
-                Total Principal (Active) <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
+                Total Principal (Active)
+                <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
             </div>
-            <div id="totalDeposit" class="dash-value">$0.00</div>
+            <div id="totalDeposit" class="dash-value blur-effect">$0.00</div>
         </div>
         
         <div class="dash-row">
             <div class="dash-label">
-                Total Term Interest (Annual Total) <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
+                Total Term Interest (Annual Total)
+                <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
             </div>
             <div id="totalInterest" class="dash-value">$0.00</div>
         </div>
@@ -441,6 +444,7 @@
         document.getElementById(id).classList.toggle('blur-effect');
     }
 
+    // 【修改點】移除每次刷新重新蓋掉 blur 狀態的邏輯，改為只更新純文字內容
     function saveToLocalStorage() {
         localStorage.setItem('my_term_deposits', JSON.stringify(deposits));
     }
@@ -453,24 +457,20 @@
         let totalDeposit = 0;
         let totalInterest = 0;
 
-        /* 【核心修改點】重新定義本金與利息的加總邏輯 */
         deposits.forEach(item => {
             const expiry = new Date(item.expiryDate);
             const itemInterest = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
             
-            // 1. 本金：只有還沒到期（Active）的才計入
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
             }
-            
-            // 2. 利息：不論是否到期，全部紀錄（全年度）一併累加進去
             totalInterest += itemInterest;
         });
 
+        // 僅更新文字，不改動它的 classList，這樣就能完美保留原本手動或預設的隱藏狀態
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
-        // 排序：進行中在上（按到期日由近到遠），已到期在下
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
             const isBExpired = new Date(b.expiryDate) < today;
