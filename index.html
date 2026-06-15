@@ -211,7 +211,6 @@
             gap: 12px;
         }
 
-        /* 【修改】重新定義卡片內排版，改為左右兩側 Flex 對齊 */
         .deposit-card {
             background: var(--card-bg);
             padding: 20px;
@@ -219,37 +218,19 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
             display: flex;
             justify-content: space-between;
-            align-items: center; /* 讓左右兩側內容垂直置中 */
+            align-items: flex-start; /* 改為頂部對齊 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
             position: relative;
-        }
-        
-        .deposit-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background-color: var(--primary-color);
-            border-radius: 12px 0 0 12px;
+            /* 【修改】移除了 ::before 的藍色邊條樣式 */
         }
 
-        /* 左側主要資訊區（佔滿剩餘寬度） */
+        /* 左側主要資訊區 */
         .card-main {
             display: flex;
             flex-direction: column;
             gap: 8px;
             flex-grow: 1;
-        }
-
-        /* 【新樣式】卡片頂部行：包含銀行標籤和倒數日期 */
-        .card-top-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-right: 25px; /* 與右側按鈕留出適當空間 */
         }
 
         .bank-tag {
@@ -260,12 +241,7 @@
             font-size: 0.75rem;
             font-weight: 600;
             width: fit-content;
-        }
-
-        .countdown {
-            font-weight: 600;
-            color: #b91c1c;
-            font-size: 0.85rem;
+            margin-bottom: 2px;
         }
 
         .card-details {
@@ -274,13 +250,33 @@
             color: #1e293b;
         }
 
-        /* 【新樣式】分上下兩行顯示的副資訊樣式 */
+        /* 分行顯示的副資訊樣式 */
         .card-sub-line {
             font-size: 0.85rem;
             color: #64748b;
         }
 
-        /* 右側按鈕群組 */
+        /* 【修改】右側資訊群組：包含倒數日期和按鈕 */
+        .card-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* 內容全部靠右對齊 */
+            gap: 20px; /* 倒數日期與按鈕之間的間距 */
+            flex-shrink: 0;
+            margin-left: 20px;
+            min-width: 120px; /* 確保右側有足夠空間 */
+        }
+
+        /* 【修改】倒數日期現在強制靠右顯示 */
+        .countdown {
+            font-weight: 600;
+            color: #b91c1c;
+            font-size: 0.85rem;
+            text-align: right;
+            white-space: nowrap; /* 防止換行 */
+        }
+
+        /* 按鈕群組 */
         .action-group {
             display: flex;
             gap: 12px;
@@ -294,7 +290,7 @@
             cursor: pointer;
             font-size: 0.8rem;
             text-decoration: none;
-            padding: 5px;
+            padding: 0px 5px;
             transition: color 0.2s;
         }
 
@@ -310,7 +306,7 @@
             color: var(--primary-color);
         }
 
-        /* Expired Item Styling */
+        /* Expired Item Styling (清新淡出) */
         .deposit-card.expired {
             background-color: #f8fafc;
             color: var(--expired-color);
@@ -318,10 +314,6 @@
             box-shadow: none;
         }
         
-        .deposit-card.expired::before {
-            background-color: var(--expired-color);
-        }
-
         .deposit-card.expired .bank-tag {
             background: #f1f5f9;
             color: #94a3b8;
@@ -494,20 +486,20 @@
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             
-            /* 【核心修改點】重組卡片內部 HTML 結構 */
+            /* 【核心修改點】重新佈局，將倒數日期移至右側群組 */
             card.innerHTML = `
                 <div class="card-main">
-                    <div class="card-top-row">
-                        <span class="bank-tag">${item.bank}</span>
-                        <span class="countdown">${countdownText}</span>
-                    </div>
+                    <span class="bank-tag">${item.bank}</span>
                     <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
                     <div class="card-sub-line">📅 Maturity: ${item.expiryDate}</div>
                     <div class="card-sub-line">💰 Net Interest: $${actualItemInterest.toFixed(2)}</div>
                 </div>
-                <div class="action-group">
-                    <button class="action-btn edit-btn-text" onclick="startEdit(${item.id})">Edit</button>
-                    <button class="action-btn" onclick="deleteDeposit(${item.id})">Delete</button>
+                <div class="card-right">
+                    <span class="countdown">${countdownText}</span>
+                    <div class="action-group">
+                        <button class="action-btn edit-btn-text" onclick="startEdit(${item.id})">Edit</button>
+                        <button class="action-btn" onclick="deleteDeposit(${item.id})">Delete</button>
+                    </div>
                 </div>
             `;
             listContainer.appendChild(card);
