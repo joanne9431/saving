@@ -30,11 +30,11 @@
             margin: 0 auto;
         }
 
-        /* Dashboard Overview - 已調小字體與間距 */
+        /* Dashboard Overview */
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 22px 28px; /* 微調內邊距，讓整體更精緻 */
+            padding: 22px 28px;
             border-radius: 20px;
             box-shadow: 0 4px 20px rgba(224, 231, 255, 0.5);
             margin-bottom: 35px;
@@ -42,22 +42,20 @@
             
             display: flex;
             flex-direction: column;
-            gap: 15px; /* 縮小兩行之間的間距 */
+            gap: 15px;
         }
 
-        /* 每一行的獨立樣式 */
         .dash-row {
             padding-bottom: 2px;
         }
 
-        /* 淡淡的分隔線 */
         .dash-row:first-child {
             border-bottom: 1px solid rgba(255, 255, 255, 0.5);
             padding-bottom: 12px;
         }
 
         .dash-label {
-            font-size: 0.8rem; /* 標籤字體微微調小 */
+            font-size: 0.8rem;
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -68,7 +66,7 @@
         }
 
         .dash-value {
-            font-size: 1.6rem; /* 【已修改】數字由 2.4rem 縮小至 1.6rem，更加秀氣 */
+            font-size: 1.6rem;
             font-weight: 600;
             letter-spacing: -0.3px;
             transition: filter 0.3s ease;
@@ -342,7 +340,7 @@
     <div class="dashboard">
         <div class="dash-row">
             <div class="dash-label">
-                Total Principal
+                Total Principal (Active)
                 <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
             </div>
             <div id="totalDeposit" class="dash-value">$0.00</div>
@@ -350,7 +348,7 @@
         
         <div class="dash-row">
             <div class="dash-label">
-                Total Term Interest
+                Total Term Interest (Active)
                 <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
             </div>
             <div id="totalInterest" class="dash-value">$0.00</div>
@@ -410,6 +408,7 @@
 <script>
     let deposits = JSON.parse(localStorage.getItem('my_term_deposits'));
     let editingId = null;
+    let userHasManuallyChangedDate = false; // 新增：用來記錄使用者是否自己改過日期
     
     if (!deposits || deposits.length === 0) {
         deposits = [
@@ -420,11 +419,19 @@
     }
 
     window.onload = function() {
+        // 監聽日期欄位，當使用者手動修改日期時，停止自動連動
+        document.getElementById('expiryDate').addEventListener('input', function() {
+            userHasManuallyChangedDate = true;
+        });
         updateMaturityDate(); 
     };
 
     function updateMaturityDate() {
-        if (editingId !== null) return;
+        // 編輯狀態中，或是使用者已經手動改過日期，就不要用選單自動覆蓋它
+        if (editingId !== null || userHasManuallyChangedDate) {
+            renderStatus();
+            return;
+        }
 
         const today = new Date();
         const selectedMonths = parseInt(document.getElementById('months').value);
@@ -452,6 +459,7 @@
 
         deposits.forEach(item => {
             const expiry = new Date(item.expiryDate);
+            // 只有「未來的紀錄」或「今天到期的紀錄」才會計入儀表板
             if (expiry >= today) {
                 totalDeposit += parseFloat(item.amount);
                 const itemInterest = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
@@ -462,6 +470,7 @@
         document.getElementById('totalDeposit').innerText = `$${totalDeposit.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         document.getElementById('totalInterest').innerText = `$${totalInterest.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
+        // 排序：進行中在上（按到期日由近到遠），已到期在下
         deposits.sort((a, b) => {
             const isAExpired = new Date(a.expiryDate) < today;
             const isBExpired = new Date(b.expiryDate) < today;
@@ -541,10 +550,15 @@
         }
 
         saveToLocalStorage();
+        
+        // 儲存後重置手動修改日期的狀態，讓下一次新增時能重新預設日期
+        userHasManuallyChangedDate = false; 
+        
         renderStatus();
 
         document.getElementById('amount').value = '';
         document.getElementById('rate').value = '';
+        updateMaturityDate();
     }
 
     function startEdit(id) {
@@ -573,6 +587,7 @@
 
     function exitEditMode() {
         editingId = null;
+        userHasManuallyChangedDate = false;
 
         const formCard = document.getElementById('formCard');
         const submitBtn = document.getElementById('submitBtn');
@@ -586,12 +601,7 @@
         document.getElementById('amount').value = '';
         document.getElementById('rate').value = '';
         
-        const today = new Date();
-        const selectedMonths = parseInt(document.getElementById('months').value);
-        today.setMonth(today.getMonth() + selectedMonths);
-        document.getElementById('expiryDate').value = today.toISOString().split('T')[0];
-        
-        renderStatus();
+        updateMaturityDate();
     }
 
     function deleteDeposit(id) {
