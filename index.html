@@ -24,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 10px 12px; 
+            padding: 20px 15px; 
             -webkit-font-smoothing: antialiased;
         }
 
@@ -37,96 +37,82 @@
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 10px 16px; 
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(224, 231, 255, 0.3);
-            margin-bottom: 12px; 
+            padding: 14px 20px; 
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(224, 231, 255, 0.4);
+            margin-bottom: 18px; 
             border: 1px solid rgba(255, 255, 255, 0.6);
+            
             display: flex;
             flex-direction: column;
-            gap: 4px; 
+            gap: 8px; 
         }
 
         .dash-row {
             padding-bottom: 2px;
+            cursor: pointer; /* 改良樣式：讓使用者知道整個區域都可以點擊切換 */
         }
 
         .dash-row:first-child {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            padding-bottom: 8px;
         }
 
         .dash-label {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
         .dash-value {
-            font-size: 1.25rem; 
+            font-size: 1.4rem; 
             font-weight: 600;
             letter-spacing: -0.3px;
-            transition: filter 0.3s ease;
+            transition: filter 0.3s ease, opacity 0.3s ease;
             color: #0f172a;
         }
 
+        /* 改良後的優雅模糊遮罩樣式 */
         .blur-effect {
             filter: blur(8px);
             user-select: none;
-        }
-
-        .toggle-btn {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid #cbd5e1;
-            color: #64748b;
-            padding: 1px 6px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.65rem;
-            transition: all 0.2s;
-        }
-
-        .toggle-btn:hover {
-            background: #fff;
-            color: var(--primary-color);
+            opacity: 0.6;
         }
 
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            padding: 12px 16px; 
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
-            margin-bottom: 12px; 
+            padding: 16px 20px; 
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+            margin-bottom: 22px; 
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
 
         .form-card.editing-mode {
             border-color: var(--primary-color);
-            box-shadow: 0 0 10px rgba(79, 70, 229, 0.08);
+            box-shadow: 0 0 15px rgba(79, 70, 229, 0.08);
         }
 
-        /* 前 4 個欄位平分第一行空間 */
+        /* 欄位佈局維持原樣 */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr); 
-            gap: 8px; 
-            margin-bottom: 10px;
+            gap: 12px; 
+            margin-bottom: 14px;
         }
 
-        /* 到期日單獨獨佔一行 */
         .full-width-row {
             grid-column: span 4; 
             margin-top: 2px;
         }
 
-        /* 手機板 RWD 自動適應調整 */
         @media (max-width: 600px) {
             .form-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -138,24 +124,22 @@
 
         label {
             display: block;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 3px;
-            white-space: nowrap; 
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-bottom: 4px;
         }
 
         input, select {
             width: 100%;
-            padding: 6px 10px; 
+            padding: 8px 12px; 
             border: 1px solid #e2e8f0;
-            border-radius: 5px;
+            border-radius: 6px;
             box-sizing: border-box;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             background-color: #f8fafc;
             color: var(--text-main);
+            transition: all 0.2s;
         }
 
         input:focus, select:focus {
@@ -166,7 +150,7 @@
 
         .btn-container {
             display: flex;
-            gap: 8px;
+            gap: 10px;
         }
 
         button.add-btn {
@@ -174,81 +158,61 @@
             background-color: var(--success-color);
             color: white;
             border: none;
-            padding: 8px; 
-            border-radius: 5px;
-            font-size: 0.85rem;
+            padding: 9px; 
+            border-radius: 6px;
+            font-size: 0.9rem;
             font-weight: 500;
             cursor: pointer;
         }
 
-        button.add-btn.update-style { background-color: var(--primary-color); }
+        button.add-btn.update-style {
+            background-color: var(--primary-color);
+        }
 
         button.cancel-btn {
             flex: 1;
             background-color: #e2e8f0;
             color: #475569;
             border: none;
-            padding: 8px;
-            border-radius: 5px;
-            font-size: 0.85rem;
+            padding: 9px;
+            border-radius: 6px;
+            font-size: 0.9rem;
             cursor: pointer;
             display: none;
         }
 
         .error-msg {
             color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 6px;
+            font-size: 0.8rem;
+            margin-top: 8px;
             display: none;
             text-align: center;
         }
 
-        /* List Title */
+        /* Deposit List */
         .list-title {
-            font-size: 0.9rem;
-            margin-bottom: 6px; 
+            font-size: 1rem;
+            margin-bottom: 10px; 
             font-weight: 600;
             color: #475569;
-            letter-spacing: 0.3px;
-        }
-
-        /* Records 獨立滾軸區域 */
-        .records-scroll-container {
-            max-height: 380px; 
-            overflow-y: auto;  
-            padding-right: 4px; 
-            margin-bottom: 12px;
-            border-radius: 8px;
-        }
-
-        .records-scroll-container::-webkit-scrollbar {
-            width: 5px; 
-        }
-        .records-scroll-container::-webkit-scrollbar-track {
-            background: transparent; 
-        }
-        .records-scroll-container::-webkit-scrollbar-thumb {
-            background: #cbd5e1; 
-            border-radius: 10px;
-        }
-        .records-scroll-container::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8; 
+            letter-spacing: 0.5px;
         }
 
         #depositList {
             display: flex;
             flex-direction: column;
-            gap: 6px; 
+            gap: 8px; 
+            margin-bottom: 15px; 
         }
 
         .deposit-card {
             background: var(--card-bg);
-            padding: 10px 14px; 
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
+            padding: 12px 18px; 
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
             display: flex;
             justify-content: space-between;
-            align-items: center; 
+            align-items: flex-start; 
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
             position: relative;
@@ -257,54 +221,58 @@
         .card-main {
             display: flex;
             flex-direction: column;
-            gap: 2px; 
+            gap: 4px; 
             flex-grow: 1;
         }
 
         .bank-tag {
             background: #f0fdf4;
             color: #166534;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
             font-weight: 600;
             width: fit-content;
+            margin-bottom: 1px;
         }
 
         .card-details {
-            font-size: 0.95rem; 
+            font-size: 1.05rem; 
             font-weight: 600;
             color: #1e293b;
         }
 
         .card-sub-line {
-            font-size: 0.75rem; 
+            font-size: 0.8rem; 
             color: #64748b;
-            line-height: 1.2;
+            line-height: 1.3;
         }
         
-        .card-sub-line strong { color: #475569; }
+        .card-sub-line strong {
+            color: #475569;
+        }
 
         .card-right {
             display: flex;
             flex-direction: column;
             align-items: flex-end; 
-            gap: 6px; 
+            gap: 12px; 
             flex-shrink: 0;
-            margin-left: 10px;
-            min-width: 90px; 
+            margin-left: 15px;
+            min-width: 100px; 
         }
 
         .countdown {
             font-weight: 600;
             color: #b91c1c;
-            font-size: 0.75rem;
+            font-size: 0.8rem;
+            text-align: right;
             white-space: nowrap; 
         }
 
         .action-group {
             display: flex;
-            gap: 8px;
+            gap: 10px;
             align-items: center;
         }
 
@@ -313,36 +281,64 @@
             border: none;
             color: #94a3b8;
             cursor: pointer;
-            font-size: 0.7rem;
-            padding: 0px;
+            font-size: 0.75rem;
+            text-decoration: none;
+            padding: 0px 2px;
+            transition: color 0.2s;
         }
 
-        .action-btn:hover { color: #ef4444; }
-        .action-btn.edit-btn-text:hover { color: var(--primary-color); }
+        .action-btn:hover {
+            color: #ef4444;
+        }
 
-        /* 導出按鈕 */
+        .action-btn.edit-btn-text {
+            color: #94a3b8;
+        }
+
+        .action-btn.edit-btn-text:hover {
+            color: var(--primary-color);
+        }
+
         .btn-backup { 
             width: 100%;
-            padding: 8px;
-            border-radius: 6px;
+            padding: 10px;
+            border-radius: 8px;
             border: none;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
             background-color: #fef3c7; 
             color: #92400e; 
+            transition: all 0.2s;
         }
-        .btn-backup:hover { background-color: #fde68a; }
+        .btn-backup:hover { 
+            background-color: #fde68a; 
+        }
+        .btn-backup:active { 
+            transform: scale(0.99); 
+            opacity: 0.9;
+        }
 
-        /* Expired Item Styling */
         .deposit-card.expired {
             background-color: #f8fafc;
+            color: var(--expired-color);
             opacity: 0.55;
             box-shadow: none;
         }
-        .deposit-card.expired .bank-tag { background: #f1f5f9; color: #94a3b8; }
-        .deposit-card.expired .card-details { color: #94a3b8; text-decoration: line-through; }
-        .deposit-card.expired .countdown { color: #94a3b8; }
+        
+        .deposit-card.expired .bank-tag {
+            background: #f1f5f9;
+            color: #94a3b8;
+        }
+
+        .deposit-card.expired .card-details {
+            color: #94a3b8;
+            text-decoration: line-through;
+        }
+
+        .deposit-card.expired .countdown {
+            color: #94a3b8;
+        }
     </style>
 </head>
 <body>
@@ -350,19 +346,13 @@
 <div class="container">
 
     <div class="dashboard">
-        <div class="dash-row">
-            <div class="dash-label">
-                Total Principal
-                <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
-            </div>
+        <div class="dash-row" onclick="toggleVisibility('totalDeposit')">
+            <div class="dash-label">Total Principal</div>
             <div id="totalDeposit" class="dash-value blur-effect">$0.00</div>
         </div>
         
-        <div class="dash-row">
-            <div class="dash-label">
-                <span id="interestYearLabel">Current Year</span> Matured Interest
-                <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
-            </div>
+        <div class="dash-row" onclick="toggleVisibility('totalInterest')">
+            <div class="dash-label"><span id="interestYearLabel">Current Year</span> Matured Interest</div>
             <div id="totalInterest" class="dash-value">$0.00</div>
         </div>
     </div>
@@ -413,10 +403,7 @@
     </div>
 
     <div class="list-title">Active & Matured Records</div>
-    
-    <div class="records-scroll-container">
-        <div id="depositList"></div>
-    </div>
+    <div id="depositList"></div>
 
     <div style="padding: 0 2px;">
         <button class="btn-backup" onclick="exportToExcelXLSX()">Export Excel File</button>
@@ -518,6 +505,7 @@
         renderStatus();
     }
 
+    // 點擊事件：切換選定 ID 的 blur-effect
     function toggleVisibility(id) {
         document.getElementById(id).classList.toggle('blur-effect');
     }
@@ -584,7 +572,7 @@
             let countdownText = isExpired ? "Matured" : (daysLeft === 0 ? "Matures Today!" : `${daysLeft} days left`);
             const actualItemInterest = item.amount * (item.rate / 100) * (item.months / 12);
 
-            // 【關鍵修正】將原本的數字M 改為單複數判斷的 Months 文字
+            /* 修正與保留項目：將存期完美格式化為 Months 形式，不使用 3m */
             const termText = item.months === 1 ? "1 Month" : `${item.months} Months`;
 
             const card = document.createElement('div');
@@ -594,7 +582,8 @@
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
                     <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${termText})</div>
-                    <div class="card-sub-line"><strong>Start:</strong> ${item.startDate} | <strong>Mat:</strong> ${item.expiryDate}</div>
+                    <div class="card-sub-line"><strong>Start Date:</strong> ${item.startDate}</div>
+                    <div class="card-sub-line"><strong>Maturity:</strong> ${item.expiryDate}</div>
                     <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
                 </div>
                 <div class="card-right">
@@ -779,7 +768,7 @@
                 d.bank,
                 `$${d.amount.toLocaleString()}`,
                 `${d.rate}%`,
-                `${d.months} M`,
+                `${d.months} Months`, // Excel 導出也同步最佳化為 Months 欄位文字
                 `$${totalInterest.toFixed(2)}`
             ]);
         });
@@ -797,7 +786,7 @@
 
         let wb = XLSX.utils.book_new();
         let ws = XLSX.utils.aoa_to_sheet(sheetRows);
-        ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }]; 
+        ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 12 }, { wch: 15 }, { wch: 22 }]; 
         
         XLSX.utils.book_append_sheet(wb, ws, `Deposit_Report_${selectedYear}`);
         XLSX.writeFile(wb, `Deposit_Report_${selectedYear}_${new Date().toISOString().slice(0,10)}.xlsx`);
