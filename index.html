@@ -73,15 +73,41 @@
             font-size: 1.4rem; 
             font-weight: 600;
             letter-spacing: -0.3px;
-            transition: filter 0.3s ease, opacity 0.3s ease;
             color: #0f172a;
+            transition: opacity 0.2s ease;
         }
 
-        /* 改良後的優雅模糊遮罩樣式 */
-        .blur-effect {
-            filter: blur(8px);
-            user-select: none;
-            opacity: 0.6;
+       /* 全新質感的隱藏遮罩層 */
+        .secure-mask {
+            position: absolute;
+            top: 2px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 4px);
+            background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
+            background-size: 200% 100%;
+            border-radius: 6px;
+            animation: shimmer 1.6s infinite linear;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        /* 啟用隱藏時的狀態 */
+        .is-hidden .dash-value {
+            opacity: 0; /* 讓真實數字完全透明，防止溢出 */
+        }
+
+        .is-hidden .secure-mask {
+            opacity: 1; /* 顯現遮罩色塊 */
+            pointer-events: auto;
+        }
+
+        /* 流光微動效 */
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
 
         /* Form Card */
