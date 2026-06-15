@@ -74,27 +74,13 @@
             letter-spacing: -0.3px;
             transition: filter 0.3s ease;
             color: #0f172a;
+            width: fit-content; /* 讓點擊範圍剛好符合文字大小 */
+            cursor: pointer;    /* 滑鼠游標變成手指，提示可點擊 */
         }
 
         .blur-effect {
             filter: blur(8px);
             user-select: none;
-        }
-
-        .toggle-btn {
-            background: rgba(255, 255, 255, 0.8);
-            border: 1px solid #cbd5e1;
-            color: #64748b;
-            padding: 1px 6px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.65rem;
-            transition: all 0.2s;
-        }
-
-        .toggle-btn:hover {
-            background: #fff;
-            color: var(--primary-color);
         }
 
         /* Form Card */
@@ -351,19 +337,17 @@
 
     <div class="dashboard">
         <div class="dash-row">
-            <div class="dash-label">
-                Total Principal
-                <button class="toggle-btn" onclick="toggleVisibility('totalDeposit')">Hide/Show</button>
+            <div class="dash-label">Total Principal</div>
+            <div id="totalDeposit" class="dash-value blur-effect" onclick="toggleVisibility('totalDeposit')" title="Click to show/hide">
+                $0.00
             </div>
-            <div id="totalDeposit" class="dash-value blur-effect">$0.00</div>
         </div>
         
         <div class="dash-row">
-            <div class="dash-label">
-                <span id="interestYearLabel">Current Year</span> Matured Interest
-                <button class="toggle-btn" onclick="toggleVisibility('totalInterest')">Hide/Show</button>
+            <div class="dash-label"><span id="interestYearLabel">Current Year</span> Matured Interest</div>
+            <div id="totalInterest" class="dash-value" onclick="toggleVisibility('totalInterest')" title="Click to show/hide">
+                $0.00
             </div>
-            <div id="totalInterest" class="dash-value">$0.00</div>
         </div>
     </div>
 
@@ -439,39 +423,32 @@
         resetFormDates();
     };
 
-    // 核心修正：完美的對日計算邏輯，完全解決 JavaScript 跨大小月的 1 日誤差問題
     function calculateShiftedDate(baseDateStr, monthsToShift, isForward = true) {
         let parts = baseDateStr.split('-');
         let year = parseInt(parts[0], 10);
-        let month = parseInt(parts[1], 10) - 1; // JS 月份由 0 開始
+        let month = parseInt(parts[1], 10) - 1; 
         let day = parseInt(parts[2], 10);
 
-        // 建立一個純粹的目標月份第一天物件
         let tempDate = new Date(year, month, 1);
         
         if (isForward) {
-            // 從 Start Date 正推推算 Maturity Date (例如：4月2日 + 3個月 = 7月2日)
             tempDate.setMonth(tempDate.getMonth() + monthsToShift);
         } else {
-            // 從 Maturity Date 倒退回 Start Date (例如：7月2日 - 3個月 = 4月2日)
             tempDate.setMonth(tempDate.getMonth() - monthsToShift);
         }
 
         let targetYear = tempDate.getFullYear();
         let targetMonth = tempDate.getMonth();
         
-        // 取得目標月份的最大天數（防止 31 號遇到只有 30 號的月份產生溢出誤差）
         let maxDaysInTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
         let finalDay = Math.min(day, maxDaysInTargetMonth);
         
-        // 組裝成標準的 YYYY-MM-DD 字串返回，不進行任何 +1 或 -1 的多餘偏置
         let finalMonthStr = String(targetMonth + 1).padStart(2, '0');
         let finalDayStr = String(finalDay).padStart(2, '0');
         
         return `${targetYear}-${finalMonthStr}-${finalDayStr}`;
     }
 
-    // 日期連動核心控制
     function onDateParameterChange(triggerType) {
         const monthsSelect = document.getElementById('months');
         const expiryInput = document.getElementById('expiryDate');
