@@ -24,7 +24,7 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 20px 15px; 
+            padding: 10px 12px; /* 緊湊版面：縮減網頁四周留白 */
             -webkit-font-smoothing: antialiased;
         }
 
@@ -37,95 +37,89 @@
         .dashboard {
             background: linear-gradient(135deg, #e0f2fe 0%, #e0e7ff 100%);
             color: #1e3a8a;
-            padding: 14px 20px; 
-            border-radius: 14px;
+            padding: 10px 16px; /* 緊湊版面：縮減內襯 */
+            border-radius: 12px;
             box-shadow: 0 4px 15px rgba(224, 231, 255, 0.4);
-            margin-bottom: 18px; 
+            margin-bottom: 12px; /* 緊湊版面：縮減元件間距 */
             border: 1px solid rgba(255, 255, 255, 0.6);
-            
             display: flex;
             flex-direction: column;
-            gap: 8px; 
+            gap: 6px; 
         }
 
         .dash-row {
             padding-bottom: 2px;
-            cursor: pointer; /* 改良樣式：讓使用者知道整個區域都可以點擊切換 */
         }
 
         .dash-row:first-child {
             border-bottom: 1px solid rgba(255, 255, 255, 0.4);
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
 
         .dash-label {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: #475569;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
-        /* 數字外層容器：加入這些屬性來固定佈局 */
-.dash-value-wrapper {
-    position: relative;
-    display: inline-block;
-    cursor: pointer;
-    min-width: 140px; 
-    margin-top: 2px;
-}
+        /* 流光微動效外層包裹器 */
+        .dash-value-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            min-width: 120px;
+        }
 
-.dash-value {
-    font-size: 1.4rem; 
-    font-weight: 600;
-    letter-spacing: -0.3px;
-    color: #0f172a;
-    transition: opacity 0.2s ease;
-}
+        .dash-value {
+            font-size: 1.35rem; 
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #0f172a;
+            transition: opacity 0.2s ease;
+        }
 
-/* 全新質感的隱藏遮罩層 */
-.secure-mask {
-    position: absolute;
-    top: 2px;
-    left: 0;
-    width: 100%;
-    height: calc(100% - 4px);
-    background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
-    background-size: 200% 100%;
-    border-radius: 6px;
-    animation: shimmer 1.6s infinite linear;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
-}
+        /* 全新流光微動效遮罩 */
+        .secure-mask {
+            position: absolute;
+            top: 2px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 4px);
+            background: linear-gradient(90deg, #cbd5e1 25%, #e2e8f0 50%, #cbd5e1 75%);
+            background-size: 200% 100%;
+            border-radius: 4px;
+            animation: shimmer 1.5s infinite linear;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
 
-/* 當加上 is-hidden 類別時的效果 */
-.is-hidden .dash-value {
-    opacity: 0; 
-}
+        /* 控制流光顯示/隱藏的 class */
+        .is-hidden .dash-value {
+            opacity: 0;
+        }
+        .is-hidden .secure-mask {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
-.is-hidden .secure-mask {
-    opacity: 1; 
-    pointer-events: auto;
-}
-
-/* 流光微動效 */
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
 
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            padding: 16px 20px; 
-            border-radius: 14px;
+            padding: 12px 16px; /* 緊湊版面：縮減內襯 */
+            border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
-            margin-bottom: 22px; 
+            margin-bottom: 14px; /* 緊湊版面：縮減元件間距 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
@@ -135,43 +129,34 @@
             box-shadow: 0 0 15px rgba(79, 70, 229, 0.08);
         }
 
-        /* 欄位佈局維持原樣 */
+        /* 核心修正：RWD 彈性網格，徹底防止日期與各輸入格擠壓變形與超出 */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 12px; 
-            margin-bottom: 14px;
+            grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); 
+            gap: 10px; 
+            margin-bottom: 10px;
         }
 
+        /* 強制讓日期格在任何螢幕下都獨佔完整的一行，絕對不超出版面 */
         .full-width-row {
-            grid-column: span 4; 
-            margin-top: 2px;
-        }
-
-        @media (max-width: 600px) {
-            .form-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            .full-width-row {
-                grid-column: span 2;
-            }
+            grid-column: 1 / -1;
         }
 
         label {
             display: block;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
 
         input, select {
             width: 100%;
-            padding: 8px 12px; 
+            padding: 6px 10px; /* 緊湊版面：縮減輸入框內襯 */
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             box-sizing: border-box;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             background-color: #f8fafc;
             color: var(--text-main);
             transition: all 0.2s;
@@ -185,7 +170,7 @@
 
         .btn-container {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
         button.add-btn {
@@ -193,9 +178,9 @@
             background-color: var(--success-color);
             color: white;
             border: none;
-            padding: 9px; 
+            padding: 8px; 
             border-radius: 6px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
         }
@@ -209,41 +194,56 @@
             background-color: #e2e8f0;
             color: #475569;
             border: none;
-            padding: 9px;
+            padding: 8px;
             border-radius: 6px;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             cursor: pointer;
             display: none;
         }
 
         .error-msg {
             color: #ef4444;
-            font-size: 0.8rem;
-            margin-top: 8px;
+            font-size: 0.78rem;
+            margin-top: 6px;
             display: none;
             text-align: center;
         }
 
         /* Deposit List */
         .list-title {
-            font-size: 1rem;
-            margin-bottom: 10px; 
+            font-size: 0.9rem;
+            margin-bottom: 6px; 
             font-weight: 600;
             color: #475569;
             letter-spacing: 0.5px;
         }
 
+        /* 核心修正：獨立滾動軸容器限制 */
         #depositList {
             display: flex;
             flex-direction: column;
-            gap: 8px; 
-            margin-bottom: 15px; 
+            gap: 6px; 
+            margin-bottom: 12px; 
+            
+            max-height: 380px;      /* 限制清單最大高度 */
+            overflow-y: auto;       /* 超出高度自動啟用垂直滾軸 */
+            padding-right: 4px;     /* 預留滾軸空間 */
+            scrollbar-width: thin;  /* Firefox 瘦滾軸 */
+        }
+
+        /* 滾軸美化 (Chrome / Safari) */
+        #depositList::-webkit-scrollbar {
+            width: 5px;
+        }
+        #depositList::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 3px;
         }
 
         .deposit-card {
             background: var(--card-bg);
-            padding: 12px 18px; 
-            border-radius: 10px;
+            padding: 10px 14px; /* 緊湊版面：縮減內襯 */
+            border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.01);
             display: flex;
             justify-content: space-between;
@@ -256,31 +256,31 @@
         .card-main {
             display: flex;
             flex-direction: column;
-            gap: 4px; 
+            gap: 2px; 
             flex-grow: 1;
         }
 
         .bank-tag {
             background: #f0fdf4;
             color: #166534;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 0.65rem;
             font-weight: 600;
             width: fit-content;
             margin-bottom: 1px;
         }
 
         .card-details {
-            font-size: 1.05rem; 
+            font-size: 0.95rem; 
             font-weight: 600;
             color: #1e293b;
         }
 
         .card-sub-line {
-            font-size: 0.8rem; 
+            font-size: 0.78rem; 
             color: #64748b;
-            line-height: 1.3;
+            line-height: 1.2;
         }
         
         .card-sub-line strong {
@@ -291,23 +291,23 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end; 
-            gap: 12px; 
+            gap: 8px; 
             flex-shrink: 0;
-            margin-left: 15px;
-            min-width: 100px; 
+            margin-left: 10px;
+            min-width: 90px; 
         }
 
         .countdown {
             font-weight: 600;
             color: #b91c1c;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             text-align: right;
             white-space: nowrap; 
         }
 
         .action-group {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
@@ -316,7 +316,7 @@
             border: none;
             color: #94a3b8;
             cursor: pointer;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             text-decoration: none;
             padding: 0px 2px;
             transition: color 0.2s;
@@ -336,10 +336,10 @@
 
         .btn-backup { 
             width: 100%;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
             border: none;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             background-color: #fef3c7; 
@@ -348,10 +348,6 @@
         }
         .btn-backup:hover { 
             background-color: #fde68a; 
-        }
-        .btn-backup:active { 
-            transform: scale(0.99); 
-            opacity: 0.9;
         }
 
         .deposit-card.expired {
@@ -374,54 +370,29 @@
         .deposit-card.expired .countdown {
             color: #94a3b8;
         }
-
-        /* 修改這裡，將原本的 #depositList 樣式改為以下 */
-#depositList {
-    display: flex;
-    flex-direction: column;
-    gap: 8px; 
-    margin-bottom: 15px;
-    
-    /* 新增以下屬性 */
-    max-height: 400px;      /* 設定清單的最大高度，您可以依需求調整 */
-    overflow-y: auto;       /* 超出高度時顯示垂直滾軸 */
-    padding-right: 5px;     /* 避免滾軸遮擋內容 */
-    
-    /* 滾軸美化 (選用) */
-    scrollbar-width: thin;
-}
-
-/* 讓滾軸在 Chrome/Safari 更好看 */
-#depositList::-webkit-scrollbar {
-    width: 6px;
-}
-#depositList::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 4px;
-}
     </style>
 </head>
 <body>
 
 <div class="container">
 
-   <div class="dashboard">
-    <div class="dash-row">
-        <div class="dash-label">Total Principal</div>
-        <div id="wrapperDeposit" class="dash-value-wrapper is-hidden" onclick="toggleVisibility('wrapperDeposit')" title="Click to show/hide">
-            <div id="totalDeposit" class="dash-value">$0.00</div>
-            <div class="secure-mask"></div>
+    <div class="dashboard">
+        <div class="dash-row">
+            <div class="dash-label">Total Principal</div>
+            <div id="wrapperDeposit" class="dash-value-wrapper is-hidden" onclick="toggleVisibility('wrapperDeposit')">
+                <div id="totalDeposit" class="dash-value">$0.00</div>
+                <div class="secure-mask"></div>
+            </div>
+        </div>
+        
+        <div class="dash-row">
+            <div class="dash-label"><span id="interestYearLabel">Current Year</span> Matured Interest</div>
+            <div id="wrapperInterest" class="dash-value-wrapper" onclick="toggleVisibility('wrapperInterest')">
+                <div id="totalInterest" class="dash-value">$0.00</div>
+                <div class="secure-mask"></div>
+            </div>
         </div>
     </div>
-    
-    <div class="dash-row">
-        <div class="dash-label"><span id="interestYearLabel">Current Year</span> Matured Interest</div>
-        <div id="wrapperInterest" class="dash-value-wrapper" onclick="toggleVisibility('wrapperInterest')" title="Click to show/hide">
-            <div id="totalInterest" class="dash-value">$0.00</div>
-            <div class="secure-mask"></div>
-        </div>
-    </div>
-</div>
 
     <div id="formCard" class="form-card">
         <div class="form-grid">
@@ -571,10 +542,10 @@
         renderStatus();
     }
 
-    // 點擊事件：切換選定 ID 的 blur-effect
-function toggleVisibility(id) {
-    document.getElementById(id).classList.toggle('is-hidden');
-}
+    // 改良：透過 toggle 'is-hidden' 類別來控制全新的流光遮罩
+    function toggleVisibility(id) {
+        document.getElementById(id).classList.toggle('is-hidden');
+    }
 
     function saveToLocalStorage() {
         localStorage.setItem('my_term_deposits', JSON.stringify(deposits));
@@ -638,16 +609,13 @@ function toggleVisibility(id) {
             let countdownText = isExpired ? "Matured" : (daysLeft === 0 ? "Matures Today!" : `${daysLeft} days left`);
             const actualItemInterest = item.amount * (item.rate / 100) * (item.months / 12);
 
-            /* 修正與保留項目：將存期完美格式化為 Months 形式，不使用 3m */
-            const termText = item.months === 1 ? "1 Month" : `${item.months} Months`;
-
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
-                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${termText})</div>
+                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
                     <div class="card-sub-line"><strong>Start Date:</strong> ${item.startDate}</div>
                     <div class="card-sub-line"><strong>Maturity:</strong> ${item.expiryDate}</div>
                     <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
@@ -834,7 +802,7 @@ function toggleVisibility(id) {
                 d.bank,
                 `$${d.amount.toLocaleString()}`,
                 `${d.rate}%`,
-                `${d.months} Months`, // Excel 導出也同步最佳化為 Months 欄位文字
+                `${d.months} M`,
                 `$${totalInterest.toFixed(2)}`
             ]);
         });
@@ -852,7 +820,7 @@ function toggleVisibility(id) {
 
         let wb = XLSX.utils.book_new();
         let ws = XLSX.utils.aoa_to_sheet(sheetRows);
-        ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 12 }, { wch: 15 }, { wch: 22 }]; 
+        ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 18 }, { wch: 22 }, { wch: 12 }, { wch: 12 }, { wch: 22 }]; 
         
         XLSX.utils.book_append_sheet(wb, ws, `Deposit_Report_${selectedYear}`);
         XLSX.writeFile(wb, `Deposit_Report_${selectedYear}_${new Date().toISOString().slice(0,10)}.xlsx`);
