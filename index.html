@@ -108,10 +108,11 @@
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            padding: 10px 14px; 
+            /* 調整：適當增加輸入資料區的上下內留白（從 10px 增加至 14px） */
+            padding: 14px 14px; 
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
-            margin-bottom: 10px; 
+            margin-bottom: 12px; /* 稍微拉開與下方標題的間距 */
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
@@ -125,7 +126,8 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr); 
             gap: 8px; 
-            margin-bottom: 4px;
+            /* 調整：增加輸入框下方的留白間距（從 4px 增加至 10px） */
+            margin-bottom: 10px;
         }
 
         @media (max-width: 650px) {
@@ -142,7 +144,7 @@
             font-size: 0.7rem;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 2px;
+            margin-bottom: 3px; /* 稍微增加標籤與輸入框之間的微小距離 */
         }
 
         input, select {
@@ -154,17 +156,17 @@
             font-size: 0.8rem; 
             background-color: #f8fafc;
             color: var(--text-main);
-            height: 28px; /* 稍微縮小輸入框整體高度 */
+            height: 28px; 
             transition: all 0.2s;
         }
 
-        /* 核心修正：針對原生日期格深度瘦身 */
+        /* 針對原生日期格深度瘦身（保持小巧精緻不發胖） */
         input[type="date"] {
             font-family: inherit;
-            font-size: 0.74rem; /* 縮小日期格子字體，防止平台預設文字撐大格子 */
-            padding: 2px 4px;   /* 極小化內襯 */
+            font-size: 0.74rem; 
+            padding: 2px 4px;   
             line-height: 1;
-            -webkit-appearance: none; /* 移除 iOS 部分預設陰影 */
+            -webkit-appearance: none; 
         }
 
         input:focus, select:focus {
@@ -173,11 +175,11 @@
             background-color: #fff;
         }
 
-        /* 核心修正：在按鈕與上方輸入格之間，補上 8px 的獨立間距空間 */
+        /* 調整：增加 add deposit 按鈕和上方日期欄位的空間（從 8px 增加至 12px） */
         .btn-container {
             display: flex;
             gap: 6px;
-            margin-top: 8px; 
+            margin-top: 12px; 
         }
 
         button.add-btn {
@@ -185,7 +187,7 @@
             background-color: var(--success-color);
             color: white;
             border: none;
-            height: 28px; /* 與輸入框同高 */
+            height: 28px; 
             padding: 0;
             border-radius: 5px;
             font-size: 0.82rem;
