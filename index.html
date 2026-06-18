@@ -108,11 +108,10 @@
         /* Form Card */
         .form-card {
             background: var(--card-bg);
-            /* 調整：適當增加輸入資料區的上下內留白（從 10px 增加至 14px） */
             padding: 14px 14px; 
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
-            margin-bottom: 12px; /* 稍微拉開與下方標題的間距 */
+            margin-bottom: 12px; 
             transition: all 0.3s ease;
             border: 1px solid #f1f5f9;
         }
@@ -126,7 +125,6 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr); 
             gap: 8px; 
-            /* 調整：增加輸入框下方的留白間距（從 4px 增加至 10px） */
             margin-bottom: 10px;
         }
 
@@ -144,7 +142,7 @@
             font-size: 0.7rem;
             color: #64748b;
             font-weight: 500;
-            margin-bottom: 3px; /* 稍微增加標籤與輸入框之間的微小距離 */
+            margin-bottom: 3px; 
         }
 
         input, select {
@@ -160,7 +158,6 @@
             transition: all 0.2s;
         }
 
-        /* 針對原生日期格深度瘦身（保持小巧精緻不發胖） */
         input[type="date"] {
             font-family: inherit;
             font-size: 0.74rem; 
@@ -175,7 +172,6 @@
             background-color: #fff;
         }
 
-        /* 調整：增加 add deposit 按鈕和上方日期欄位的空間（從 8px 增加至 12px） */
         .btn-container {
             display: flex;
             gap: 6px;
@@ -451,6 +447,11 @@
         resetFormDates();
     };
 
+    function parseLocalExpiryDate(dateStr) {
+        const parts = dateStr.split('-');
+        return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
+    }
+
     function calculateShiftedDate(baseDateStr, monthsToShift, isForward = true) {
         let parts = baseDateStr.split('-');
         let year = parseInt(parts[0], 10);
@@ -552,14 +553,14 @@
                 item.startDate = calculateShiftedDate(item.expiryDate, (item.months || 3), false);
             }
 
-            const expiry = new Date(item.expiryDate);
+            const expiry = parseLocalExpiryDate(item.expiryDate);
             const expiryYear = parseInt(item.expiryDate.split('-')[0]);
             
-            if (expiry >= today) {
+            if (expiry > today) {
                 totalDeposit += parseFloat(item.amount);
             }
 
-            if (expiry < today && expiryYear === activeYear) {
+            if (expiry <= today && expiryYear === activeYear) {
                 let totalInterestEarned = parseFloat(item.amount) * (parseFloat(item.rate) / 100) * (parseInt(item.months) / 12);
                 totalInterestFull += totalInterestEarned;
             }
@@ -569,11 +570,11 @@
         document.getElementById('totalInterest').innerText = `$${totalInterestFull.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
         deposits.sort((a, b) => {
-            const isAExpired = new Date(a.expiryDate) < today;
-            const isBExpired = new Date(b.expiryDate) < today;
+            const isAExpired = parseLocalExpiryDate(a.expiryDate) <= today;
+            const isBExpired = parseLocalExpiryDate(b.expiryDate) <= today;
             if (isAExpired && !isBExpired) return 1;
             if (!isAExpired && isBExpired) return -1;
-            return new Date(a.expiryDate) - new Date(b.expiryDate);
+            return parseLocalExpiryDate(a.expiryDate) - parseLocalExpiryDate(b.expiryDate);
         });
 
         listContainer.innerHTML = '';
@@ -585,8 +586,8 @@
             const startDateObj = new Date(item.startDate);
             if (startDateObj < oneYearAgo) return; 
 
-            const expiry = new Date(item.expiryDate);
-            const isExpired = expiry < today;
+            const expiry = parseLocalExpiryDate(item.expiryDate);
+            const isExpired = expiry <= today;
             const timeDiff = expiry.getTime() - today.getTime();
             const daysLeft = Math.ceil(timeDiff / (1000 * 3600 * 24));
 
@@ -599,7 +600,7 @@
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
-                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months}M)</div>
+                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months} months)</div>
                     <div class="card-sub-line"><strong>Start Date:</strong> ${item.startDate}</div>
                     <div class="card-sub-line"><strong>Maturity:</strong> ${item.expiryDate}</div>
                     <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
@@ -774,9 +775,9 @@
 
         filteredDeposits.forEach(d => {
             let totalInterest = d.amount * (d.rate / 100) * (d.months / 12);
-            const expiry = new Date(d.expiryDate);
+            const expiry = parseLocalExpiryDate(d.expiryDate);
             
-            if (expiry < sysDate) {
+            if (expiry <= sysDate) {
                 totalMaturedInterestForYear += totalInterest;
             }
 
