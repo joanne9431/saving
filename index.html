@@ -594,13 +594,16 @@
             let countdownText = isExpired ? "Matured" : (daysLeft === 0 ? "Matures Today!" : `${daysLeft} days left`);
             const actualItemInterest = item.amount * (item.rate / 100) * (item.months / 12);
 
+            // 判斷月份文字單複數
+            const unitText = parseInt(item.months) === 1 ? "month" : "months";
+
             const card = document.createElement('div');
             card.className = `deposit-card ${isExpired ? 'expired' : ''}`;
             
             card.innerHTML = `
                 <div class="card-main">
                     <span class="bank-tag">${item.bank}</span>
-                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months} months)</div>
+                    <div class="card-details">$${parseFloat(item.amount).toLocaleString()} @ ${item.rate}% (${item.months} ${unitText})</div>
                     <div class="card-sub-line"><strong>Start Date:</strong> ${item.startDate}</div>
                     <div class="card-sub-line"><strong>Maturity:</strong> ${item.expiryDate}</div>
                     <div class="card-sub-line"><strong>Net Interest:</strong> $${actualItemInterest.toFixed(2)}</div>
